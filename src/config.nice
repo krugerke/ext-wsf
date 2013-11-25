@@ -1,0 +1,17 @@
+#! /bin/sh
+#
+# Created by configure
+
+'./configure' \
+'--with-wsf' \
+'--enable-openssl' \
+'--with-axis2=/home/cteam/wsf/php2.0/php/wsf_c/axis2c/include' \
+'--enable-tcp=yes' \
+'--enable-tests=yes' \
+'--enable-savan=no' \
+'--with-xmpp' \
+'--with-archive' \
+'--prefix=/usr/local/lib/php/extensions/no-debug-non-zts-20060613/wsf_c' \
+'--cache-file=/dev/null' \
+'--srcdir=.' \
+"$@"
