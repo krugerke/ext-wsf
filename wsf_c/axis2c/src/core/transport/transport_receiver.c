@@ -1,4 +1,3 @@
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -33,8 +32,7 @@ axis2_transport_receiver_init(
     struct axis2_conf_ctx *conf_ctx,
     struct axis2_transport_in_desc *transport_in)
 {
-    return (transport_receiver->ops)->init(transport_receiver, env,
-                                           conf_ctx, transport_in);
+    return (transport_receiver->ops)->init(transport_receiver, env, conf_ctx, transport_in);
 }
 
 AXIS2_EXTERN axis2_status_t AXIS2_CALL
@@ -59,9 +57,35 @@ axis2_transport_receiver_get_reply_to_epr(
     const axutil_env_t * env,
     const axis2_char_t * svc_name)
 {
-    return (transport_receiver->ops)->get_reply_to_epr(transport_receiver, env,
-                                                       svc_name);
+    return (transport_receiver->ops)->get_reply_to_epr(transport_receiver, env, svc_name);
 }
+
+AXIS2_EXTERN axis2_endpoint_ref_t *AXIS2_CALL
+axis2_transport_receiver_get_epr_for_service(
+    axis2_transport_receiver_t * transport_receiver,
+    const axutil_env_t * env,
+    const axis2_char_t * svc_name)
+{
+    return (transport_receiver->ops)->get_epr_for_service(transport_receiver, env, svc_name);
+}
+
+AXIS2_EXTERN  axis2_char_t* AXIS2_CALL
+axis2_transport_receiver_get_server_ip(
+axis2_transport_receiver_t *transport_receiver,
+const axutil_env_t *env)
+{
+	return (transport_receiver->ops)->get_server_ip(transport_receiver, env);
+}
+
+AXIS2_EXTERN void AXIS2_CALL
+axis2_transport_receiver_set_server_ip(
+axis2_transport_receiver_t *transport_receiver,
+const axutil_env_t *env,
+ axis2_char_t *serverip)
+{
+	(transport_receiver->ops)->set_server_ip(transport_receiver, env, serverip);
+}
+
 
 AXIS2_EXTERN struct axis2_conf_ctx *AXIS2_CALL
 axis2_transport_receiver_get_conf_ctx(
@@ -77,4 +101,14 @@ axis2_transport_receiver_is_running(
     const axutil_env_t * env)
 {
     return (transport_receiver)->ops->is_running(transport_receiver, env);
+}
+
+AXIS2_EXTERN void AXIS2_CALL
+axis2_transport_receiver_set_is_application_client_side(
+    axis2_transport_receiver_t * transport_receiver,
+    const axutil_env_t * env,
+    axis2_bool_t is_application_client_side)
+{
+    (transport_receiver)->ops->set_is_application_client_side(transport_receiver, env,
+            is_application_client_side);
 }

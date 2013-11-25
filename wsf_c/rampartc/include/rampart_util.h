@@ -19,7 +19,6 @@
 #include <axis2_defines.h>
 #include <axutil_date_time.h>
 #include <axutil_env.h>
-#include <axutil_property.h>
 #include <axis2_msg_ctx.h>
 #include <rampart_authn_provider.h>
 #include <rampart_credentials.h>
@@ -178,18 +177,20 @@ extern "C" {
      * Generates time.
      * User MUST free memory
      * @param ttl Time to live. The time difference between created and expired in mili seconds.
+     * @param with_millisecond  shows whether millisecond precision is needed or not
      * @return generated time
      **/
     AXIS2_EXTERN axis2_char_t* AXIS2_CALL
     rampart_generate_time(
         const axutil_env_t *env, 
-        int ttl);
+        int ttl, 
+        axis2_bool_t with_millisecond);
 
     /**
      * Check if @dt1 < @dt2. if not returns a false
      * @param env pointer to environment struct
-     * @param dt1 date time 1
-     * @param dt2 date time 2
+     * @param dt1 date time 1.
+     * @param dt2 date time 2.
      * @return AXIS2_SUCCESS if dt1 < dt2. AXIS2_FALSE otherwise
      */
     AXIS2_EXTERN axis2_status_t AXIS2_CALL
@@ -197,17 +198,6 @@ extern "C" {
         const axutil_env_t *env, 
         axis2_char_t *dt1, 
         axis2_char_t *dt2);
-
-    /**
-     * check whether different keys are needed for encryption and signature
-     * @param env pointer to environment struct
-     * @param rampart_context rampart context
-     * @return AXIS2_TRUE if different keys are needed. AXIS2_FALSE otherwise.
-     */
-    AXIS2_EXTERN axis2_bool_t AXIS2_CALL
-    is_different_session_key_for_encryption_and_signing(
-        const axutil_env_t *env,
-        rampart_context_t *rampart_context);
 
     /* @} */
 #ifdef __cplusplus

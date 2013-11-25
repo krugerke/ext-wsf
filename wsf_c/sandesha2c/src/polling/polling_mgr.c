@@ -256,12 +256,19 @@ sandesha2_polling_mgr_worker_func(
     dbname = sandesha2_util_get_dbname(env, conf_ctx);
     
     storage_mgr = sandesha2_utils_get_storage_mgr(env, dbname);
+    if(!storage_mgr)
+    {
+        AXIS2_LOG_ERROR(env->log, AXIS2_LOG_SI, "[sandesha2] Could not create storage manager.");
+        AXIS2_ERROR_SET(env->error, SANDESHA2_ERROR_COULD_NOT_CREATE_STORAGE_MANAGER, 
+                AXIS2_FAILURE);
+        return NULL;
+    }
     seq_prop_mgr = sandesha2_permanent_seq_property_mgr_create(env, dbname);
     sender_mgr = sandesha2_permanent_sender_mgr_create(env, dbname);
     next_msg_mgr = sandesha2_permanent_next_msg_mgr_create(env, dbname);
  
     conf = axis2_conf_ctx_get_conf(conf_ctx, env);
-    property_bean = sandesha2_utils_get_property_bean(env, conf);
+    /*property_bean = sandesha2_utils_get_property_bean(env, conf);*/
     wait_time = sandesha2_property_bean_get_polling_delay(property_bean, env);
 
     find_sender_bean = sandesha2_sender_bean_create(env);

@@ -1,8 +1,8 @@
 datadir=$(prefix)
-samplesdir=$(prefix)/samples/axis2c
+samplesdir=$(prefix)/samples
 logsdir=$(prefix)/logs
 docsdir=$(prefix)/docs/axis2c
-includedir=$(prefix)/include/axis2-1.5.0
+includedir=$(prefix)/include/wsfc-2.0.0
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = axis2c.pc
@@ -15,7 +15,7 @@ data_DATA= README \
 logs_DATA=
 docs_DATA=
 samples_DATA=
-EXTRA_DIST = build.sh autogen.sh CREDITS LICENSE build axis2c_build.sh guththila tools AUTHORS NOTICE xdocs
+EXTRA_DIST = build.sh autogen.sh CREDITS LICENSE build guththila tools AUTHORS NOTICE xdocs samples
 
 dist-hook:
 	sh dist.sh
@@ -30,5 +30,6 @@ bindist: $(bin_PROGRAMS)
 	rm -rf axis2c-bin-${PACKAGE_VERSION}-linux
 
 install-data-hook:
-	cp -rf samples/* $(samplesdir)
+	mkdir -p $(samplesdir)/src/axis2c
+	cp -rf samples/* $(samplesdir)/src/axis2c
 

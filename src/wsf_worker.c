@@ -1,5 +1,5 @@
 /*
- * Copyright 2005,2008 WSO2, Inc. http://wso2.com
+ * Copyright 2005,2010 WSO2, Inc. http://wso2.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,21 +59,28 @@ wsf_worker_find_op_and_params_with_location_and_method(
 	axis2_msg_ctx_t *msg_ctx)
 {
 	axis2_op_t *op = NULL;
-	int param_count = 0;
-	char ***params = NULL;
+    
+    axutil_array_list_t *param_keys = NULL;
+    axutil_array_list_t *param_values = NULL;
+
+
 	if(svc_info->loc_str)
 	{
+        param_keys = axutil_array_list_create(env, 10);
+        param_values = axutil_array_list_create(env, 10);
 		op = axis2_core_utils_get_rest_op_with_method_and_location(svc_info->svc,
-			env, method, svc_info->loc_str, &param_count, &params);
+			env, method, svc_info->loc_str, param_keys, param_values);
 	}
-	req_info->param_count = param_count;
-	req_info->params = params;
+	req_info->param_keys = param_keys;
+	req_info->param_values = param_values;
 
    if (op)
    {
 		AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, WSF_PHP_LOG_PREFIX \
 			"Operation found using target endpoint uri fragment");
-   }else
+   }
+   /*
+   else
    {
 		int i = 0;
 		int j = 0;
@@ -113,7 +120,8 @@ wsf_worker_find_op_and_params_with_location_and_method(
 			}
 		}
 		axis2_msg_ctx_set_supported_rest_http_methods(msg_ctx, env, supported_rest_methods);
-	}	
+	
+    */
 	return op;
 }
 
@@ -284,30 +292,31 @@ static void wsf_worker_send_mtom_message(
 
 static void 
 wsf_worker_write_response(wsf_response_info_t *response TSRMLS_DC)
-	{
+{
 	if(response && response->http_status_code_name)
-		{
+	{
 		char status_line[100];
 		char *content_type = NULL; 
 		sprintf(status_line, "%s %d %s" , response->http_protocol,response->http_status_code, 
 			response->http_status_code_name );
 		sapi_add_header(status_line, strlen(status_line), 1);
 		if(response->http_status_code == AXIS2_HTTP_RESPONSE_ACK_CODE_VAL)
-			{
+		{
 			sapi_add_header ("Content-Length: 0", sizeof ("Content-Length: 0") - 1, 1);
-			}
+		}
 		if(response->content_type)
-			{
+		{
 			content_type = emalloc(strlen (response->content_type) * sizeof (char) + 20);
 			sprintf (content_type, "Content-Type: %s", response->content_type);
 			sapi_add_header (content_type, strlen (content_type), 1);
 			if(response->response_data)
-				{
+			{
 				php_write (response->response_data, response->response_length TSRMLS_CC);
-				}
 			}
+			efree(content_type);
 		}
 	}
+}
 
 int
 wsf_worker_process_request (
@@ -552,14 +561,14 @@ wsf_worker_process_request (
 				wsf_worker_send_mtom_message(response, env, mime_parts TSRMLS_CC);
 			}
 
-            axis2_msg_ctx_free(out_msg_ctx, env);
+             axis2_msg_ctx_free(out_msg_ctx, env); 
             msg_ctx_map[AXIS2_WSDL_MESSAGE_LABEL_OUT] = NULL;
         }
         if (in_msg_ctx)
         {
             msg_id = axutil_strdup(env, axis2_msg_ctx_get_msg_id(in_msg_ctx, env));
             msg_ctx_map[AXIS2_WSDL_MESSAGE_LABEL_IN] = NULL;
-            axis2_msg_ctx_free(in_msg_ctx, env);
+             /* axis2_msg_ctx_free(in_msg_ctx, env); */
         }
 
         if(!axis2_op_ctx_is_in_use(op_ctx, env))

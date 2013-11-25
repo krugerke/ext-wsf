@@ -149,18 +149,18 @@ extern "C"
 
 #define AXIS2_STRRCHR(x, y) (strrchr(x, y))
 
-#define AXIS2_PLATFORM_SLEEP(x) Sleep(0);
+#define AXIS2_PLATFORM_SLEEP(x) Sleep(0)
 
 #define AXIS2_SLEEP(x) Sleep((x)*1000)
-#define AXIS2_USLEEP(x) Sleep((x)/1000);
+#define AXIS2_USLEEP(x) Sleep((x)/1000)
 
     /**
      * Get the last error code from the system.
      * Please ensure that this is a thread safe implementation
      * and that it returns a long
-     * @return long the lsat error message for this thread
+     * @return long the last error message for this thread
      */
-#define AXIS2_GETLASTERROR GetLastError();
+#define AXIS2_GETLASTERROR GetLastError()
 
     /**
      * From the last error number get a sensible std::string representing it
@@ -169,6 +169,10 @@ extern "C"
      */
 #define AXIS2_PLATFORM_GET_ERROR_MESSAGE(errorNumber) getPlatformErrorMessage(errorNumber);
 
+	/**
+	 * Platform specific method to obtain current thread ID
+	 */
+#define AXIS2_PLATFORM_GET_THREAD_ID() GetCurrentThreadId()
     /**
      * type to be used for 64bit integers
      */
@@ -207,6 +211,7 @@ extern "C"
 #define AXIS2_FREAD fread
 #define AXIS2_FWRITE fwrite
 #define AXIS2_FCLOSE fclose
+#define AXIS2_FTELL ftell
 #define AXIS2_ACCESS(zpath,imode) _access(zpath,imode)
 #define AXIS2_R_OK 04           /* test for read permission */
 #define AXIS2_W_OK 02           /* test for write permission */

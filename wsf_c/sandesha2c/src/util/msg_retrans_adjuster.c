@@ -56,7 +56,8 @@ sandesha2_msg_retrans_adjuster_adjust_retrans(
     sandesha2_storage_mgr_t *storage_mgr,
     sandesha2_seq_property_mgr_t *seq_prop_mgr,
     sandesha2_create_seq_mgr_t *create_seq_mgr,
-    sandesha2_sender_mgr_t *sender_mgr)
+    sandesha2_sender_mgr_t *sender_mgr,
+    axis2_svc_t *svc)
 {
     axis2_char_t *stored_key = NULL;
     axis2_char_t *internal_sequence_id = NULL;
@@ -85,13 +86,18 @@ sandesha2_msg_retrans_adjuster_adjust_retrans(
     }
 
     internal_sequence_id = sandesha2_sender_bean_get_internal_seq_id(sender_bean, env);
-   
-    property_bean = sandesha2_utils_get_property_bean(env, axis2_conf_ctx_get_conf(conf_ctx, env));
+  
+    property_bean = sandesha2_utils_get_property_bean(env, svc);
+    if(property_bean)
+    {
+        max_attempts = sandesha2_property_bean_get_max_retrans_count(property_bean, env);
+    }
+
     sent_count = sandesha2_sender_bean_get_sent_count(sender_bean, env) + 1;
     sandesha2_sender_bean_set_sent_count(sender_bean, env, sent_count);
-    sandesha2_msg_retrans_adjuster_adjust_next_retrans_time(env, sender_bean, property_bean);
 
-    max_attempts = sandesha2_property_bean_get_max_retrans_count(property_bean, env);
+    AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "max_attempts:%d", max_attempts);
+    AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "sent_count:%d", sent_count);
     if(max_attempts > 0 &&  sent_count > max_attempts)
     {
         AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, 
@@ -102,7 +108,7 @@ sandesha2_msg_retrans_adjuster_adjust_retrans(
     }
 
     seq_timed_out = sandesha2_seq_mgr_has_seq_timedout(env, internal_sequence_id, seq_prop_mgr, 
-            conf_ctx);
+            /*conf_ctx*/svc);
     
     if(seq_timed_out)
     {

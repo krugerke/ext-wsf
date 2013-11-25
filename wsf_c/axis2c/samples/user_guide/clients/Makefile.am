@@ -1,4 +1,4 @@
-prgbindir=$(prefix)/bin/samples
+prgbindir=$(prefix)/samples/bin
 prgbin_PROGRAMS = echo_blocking echo_non_blocking echo_blocking_addr echo_rest echo_blocking_dual echo_non_blocking_dual echo_blocking_soap11 echo_blocking_auth
 
 
@@ -17,7 +17,6 @@ LINK_FLAGS = $(LDFLAGS) \
              -laxis2_axiom \
              -laxis2_engine \
              -laxis2_parser \
-             -lpthread \
              -laxis2_http_sender \
              -laxis2_http_receiver \
              $(GUTHTHILA_LIBS)

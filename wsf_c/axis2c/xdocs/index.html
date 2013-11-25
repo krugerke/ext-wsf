@@ -13,8 +13,6 @@
       <li><a href="http://www.w3.org/Submission/WS-Policy/" class="externalLink" title="External Link">WS-Policy</a> - Built in to Axis2/C </li>
       <li><a href="http://www.oasis-open.org/committees/tc_home.php?wg_abbrev=wss" class="externalLink" title="External Link">WS-Security</a> - Implemented by <a href="http://ws.apache.org/axis2/modules/rampart/1_2/security-module.html" class="externalLink" title="External Link">Apache Rampart/C</a> project </li>
       <li> <a href="http://specs.xmlsoap.org/ws/2005/07/securitypolicy/ws-securitypolicy.pdf" class="externalLink" title="External Link">WS-SecurityPolicy</a> - Built in to Axis2/C </li>
-      <li> <a href="http://www.oasis-open.org/committees/tc_home.php?wg_abbrev=wsrm" class="externalLink" title="External Link">WS-ReliableMessaging</a> - Implemented by <a href="http://ws.apache.org/sandesha/sandesha2/c" class="externalLink" title="External Link">Apache Sandesha2/C</a>project
-      </li>
       <li><a href="http://www.w3.org/Submission/WS-Eventing/" class="externalLink" title="External Link">WS-Eventing</a> - Implemented by <a href="http://ws.apache.org/savan/c/" class="externalLink" title="External Link">Apache Savan/C</a>project</li>
     </ul>
     <div class="subsection">
@@ -22,9 +20,9 @@
       <h3>Latest Release</h3>
     </div>
     <div class="subsection">
-      <a name="17_January_2008_-_Apache_Axis2_C_Version_1_5_0_Released"></a>
-      <h3>6th May 2008 - Apache Axis2/C Version 1.5.0 Released</h3>
-      <p><a href="http://ws.apache.org/axis2/c/download.cgi" class="externalLink" title="External Link">Download 1.5.0</a></p>
+      <a name="29_June_2009_-_Apache_Axis2_C_Version_1.7.0_Released"></a>
+      <h3>29th June 2009 - Apache Axis2/C Version 1.7.0 Released</h3>
+      <p><a href="http://ws.apache.org/axis2/c/download.cgi" class="externalLink" title="External Link">Download 1.7.0</a></p>
     </div>
     <div class="subsection">
       <a name="Key_Features"></a>
@@ -41,11 +39,13 @@
             <li>Basic HTTP Authentication</li>
             <li>AMQP Transport based on Apache Qpid (Experimental)<li>
             <li>libcurl based client transport</li>
+            <li>CGI interface</li>
           </ul>
         </li>
         <li>Module architecture, mechanism to extend the SOAP processing model</li>
         <li>WS-Addressing support, both the submission (2004/08) and final (2005/08) versions, implemented as a module</li>
         <li>MTOM/XOP support</li>
+        <li>XPath support for Axiom XML Object model</li>
         <li>AXIOM, an XML object model optimized for SOAP 1.1/1.2 messages; This has complete XML infoset support </li>
         <li>XML parser abstraction
           <ul>
@@ -79,15 +79,13 @@
       <a name="Major_Changes_Since_Last_Release"></a>
       <h3>Changes Since Last Release</h3>
       <ol> 
-        <li>AMQP Transport support with Apache Qpid. (At an experimental stage and not working under Windows)</li>
-        <li>Modifications to IIS Module to support IIS 6 & 7.</li>
-        <li>Added a JScript file to automate IIS module registry configuration</li>
-        <li>Specifying the MEP in the services.xml for non in-out messages made mandatory</li>
-        <li>Improved the in-only message handling</li>
-        <li>Improvements to Guthtila for better performance</li>
-        <li>Improvements to TCPMon tool</li>
+        <li>XPath support for Axiom XML object model</li>
+        <li>CGI support</li>
+        <li>Improvements to MTOM to send, receive very large attachments</li>
+        <li>Improvements to AMQP transport</li>
+        <li>Improvements to WSDL2C codegen tool</li>
+        <li>Many bug fixes.</li>
         <li>Memory leak fixes</li>
-        <li>Many bug fixes</li>
       </ol>
     </div>
     <div class="subsection">

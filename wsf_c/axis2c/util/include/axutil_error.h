@@ -116,6 +116,9 @@ extern "C"
         AXIS2_ERROR_UNSUPPORTED_TYPE,
         /* Options object is not set */
         AXIS2_ERROR_OPTIONS_OBJECT_IS_NOT_SET,
+
+        /* Session Timeout */
+        AXIS2_ERROR_SESSION_TIMEOUT,
         /*
          * Group - core:clientapi:diclient
          */
@@ -336,6 +339,10 @@ extern "C"
 
         /** URL NULL in http client */
         AXIS2_ERROR_NULL_URL,
+        /** Invalid URL format */
+        AXIS2_ERROR_INVALID_URL_FORMAT,
+        /** Duplicate URL REST Mapping */
+        AXIS2_ERROR_DUPLICATE_URL_REST_MAPPING,
         /* We need transport_info in msg_ctx */
         AXIS2_ERROR_OUT_TRNSPORT_INFO_NULL,
         /*Content-Type header missing in HTTP response" */
@@ -828,7 +835,7 @@ extern "C"
      * @return AXIS2_SUCCESS on success, else AXIS2_FAILURE
      */
     AXIS2_EXTERN axis2_status_t AXIS2_CALL
-    axutil_error_init();
+    axutil_error_init(void);
 
     /**
      * De-allocates an error struct instance.

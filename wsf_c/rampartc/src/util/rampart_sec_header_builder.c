@@ -36,6 +36,7 @@
 #include <rampart_signature.h>
 #include <rampart_saml.h>
 #include <rampart_issued.h>
+#include <axiom_util.h>
 /*Private functions*/
 
 axis2_status_t AXIS2_CALL
@@ -370,7 +371,7 @@ rampart_shb_ensure_sec_header_order(const axutil_env_t *env,
         {
             axiom_node_t *tmp_node = NULL;
             tmp_node = (axiom_node_t*)axutil_array_list_get(enc_key_list, env, i);
-            enc_key_node = axiom_node_detach(tmp_node, env);
+            enc_key_node = axiom_node_detach_without_namespaces(tmp_node, env);
             axiom_node_insert_sibling_before(first_protection_item, env, enc_key_node);
         }
     }
@@ -468,13 +469,15 @@ rampart_shb_build_message(
     if(rampart_context_is_include_timestamp(rampart_context,env))
     {
         int ttl = -1;
+        axis2_bool_t need_millisecond = AXIS2_TRUE;
+
         AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[rampart][shb] Building Timestamp Token");
         AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[rampart][shb] Using default timeToLive value %d",
                        RAMPART_TIMESTAMP_TOKEN_DEFAULT_TIME_TO_LIVE);
         ttl = rampart_context_get_ttl(rampart_context,env);
+        need_millisecond = rampart_context_get_need_millisecond_precision(rampart_context, env);
 
-        status = rampart_timestamp_token_build(env,
-                                               sec_node, sec_ns_obj, ttl);
+        status = rampart_timestamp_token_build(env, sec_node, ttl, need_millisecond);
         if (status == AXIS2_FAILURE)
         {
             AXIS2_LOG_ERROR(env->log, AXIS2_LOG_SI,

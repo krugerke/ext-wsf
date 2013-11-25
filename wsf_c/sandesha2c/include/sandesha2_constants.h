@@ -178,6 +178,28 @@ extern "C"
 
 	#define SANDESHA2_WSA_SOAP_FAULT_ACTION  "http://schemas.xmlsoap.org/ws/2004/08/addressing/fault"
 
+
+    /* RSTR actions */
+
+    #define SECCONV_200502_REQUEST_ISSUE_ACTION "http://schemas.xmlsoap.org/ws/2005/02/trust/RST/SCT"
+    #define SECCONV_200502_REPLY_ISSUE_ACTION "http://schemas.xmlsoap.org/ws/2005/02/trust/RSTR/SCT"
+    #define SECCONV_200502_REQUEST_AMEND_ACTION "http://schemas.xmlsoap.org/ws/2005/02/trust/RST/SCT/Amend"
+    #define SECCONV_200502_REPLY_AMEND_ACTION "http://schemas.xmlsoap.org/ws/2005/02/trust/RSTR/SCT/Amend"
+    #define SECCONV_200502_REQUEST_RENEW_ACTION "http://schemas.xmlsoap.org/ws/2005/02/trust/RST/SCT/Renew"
+    #define SECCONV_200502_REPLY_RENEW_ACTION "http://schemas.xmlsoap.org/ws/2005/02/trust/RSTR/SCT/Renew"
+    #define SECCONV_200502_REQUEST_CANCEL_ACTION "http://schemas.xmlsoap.org/ws/2005/02/trust/RST/SCT/Cancel"
+    #define SECCONV_200502_REPLY_CANCEL_ACTION "http://schemas.xmlsoap.org/ws/2005/02/trust/RSTR/SCT/Cancel"
+    #define SECCONV_200512_REQUEST_ISSUE_ACTION "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/SCT"
+    #define SECCONV_200512_REPLY_ISSUE_ACTION "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/SCT"
+    #define SECCONV_200512_REQUEST_AMEND_ACTION "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/SCT/Amend"
+    #define SECCONV_200512_REPLY_AMEND_ACTION "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/SCT/Amend"
+    #define SECCONV_200512_REQUEST_RENEW_ACTION "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/SCT/Renew"
+    #define SECCONV_200512_REPLY_RENEW_ACTION "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/SCT/Renew"
+    #define SECCONV_200512_REQUEST_CANCEL_ACTION "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/SCT/Cancel"
+    #define SECCONV_200512_REPLY_CANCEL_ACTION "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/SCT/Cancel"
+
+
+
 	enum sandesha2_message_types 
 	{
 		SANDESHA2_MSG_TYPE_UNKNOWN = 0,
@@ -241,12 +263,14 @@ extern "C"
 	#define SANDESHA2_SEQ_PROP_TO_EPR  "ToEPR"
 
 	#define SANDESHA2_SEQ_PROP_ACKS_TO_EPR  "acksToEPR"
-
-	#define SANDESHA2_SEQUENCE_PROPERTY_RMS_SEQ_ID  "OutSequenceId"
-
-	#define SANDESHA2_SEQUENCE_PROPERTY_RMS_INTERNAL_SEQ_ID  "TempSequenceId"
 	
-    #define SANDESHA2_SEQ_PROP_SPECIAL_INTERNAL_SEQ_ID  "SpecialIntSequenceId"
+    #define SANDESHA2_SEQ_PROP_ACKS_TO_REF_PARAM  "acksToRefParam"
+
+	#define SANDESHA2_SEQUENCE_PROPERTY_OUTGOING_SEQUENCE_ID  "OutgoingSequenceId"
+
+	#define SANDESHA2_SEQUENCE_PROPERTY_OUTGOING_INTERNAL_SEQUENCE_ID  "OutgoingInternalSequenceId"
+	
+    #define SANDESHA2_SEQ_PROP_SPECIAL_INTERNAL_SEQUENCE_ID  "SpecialIntSequenceId"
 
 	#define SANDESHA2_SEQ_PROP_REPLY_TO_EPR  "ReplyToEPR"
 
@@ -284,7 +308,7 @@ extern "C"
 		
 	#define SANDESHA2_SEQ_PROP_LAST_MESSAGE  "LastMessage"
 
-	#define SANDESHA2_SEQ_PROP_REQUEST_SIDE_SEQ_ID  "RequestSideSequenceID" 		//used only at the server side
+	#define SANDESHA2_SEQ_PROP_REQUEST_SIDE_SEQUENCE_ID  "RequestSideSequenceID" 		//used only at the server side
 		
 	#define SANDESHA2_SEQ_PROP_HIGHEST_IN_MSG_NUMBER  "HighestInMsgNumber"
 		
@@ -302,7 +326,7 @@ extern "C"
 
     #define SANDESHA2_SEQ_PROP_HIGHEST_IN_MSG_ID "HighestInMsgId"
     
-    #define SANDESHA2_SEQ_PROP_1_0_REPLAY "Replay1_0"
+    #define SANDESHA2_SEQ_PROP_REPLAY "Replay"
     
     #define SANDESHA2_SEQ_PROP_RELATED_MSG_ID "related_msg_id"
     
@@ -539,6 +563,7 @@ extern "C"
 	#define SANDESHA2_MODULE  "sandesha2"
 	#define SANDESHA2_ISOLATED_LAST_MSG "isolated_last_msg"
 	#define SANDESHA2_PROPERTY_STRING "propstr"
+    #define RAMPART_CONTEXT "RampartContext"
 /** @} */
 #ifdef __cplusplus
 }

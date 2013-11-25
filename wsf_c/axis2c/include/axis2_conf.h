@@ -812,6 +812,22 @@ extern "C"
     axis2_conf_get_base(
         const axis2_conf_t * conf,
         const axutil_env_t * env);
+
+	AXIS2_EXTERN axutil_array_list_t * AXIS2_CALL
+	axis2_conf_get_handlers(const axis2_conf_t * conf,
+		const axutil_env_t * env);
+
+	/**
+	 * Disengage a module 
+	 * @param 
+	 *
+	 */
+	AXIS2_EXTERN axis2_status_t AXIS2_CALL
+	axis2_conf_disengage_module(
+		const axis2_conf_t *conf,
+		const axutil_env_t *env,
+		const axutil_qname_t *module_ref
+		);
 #ifdef __cplusplus
 }
 #endif

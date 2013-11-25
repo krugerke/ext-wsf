@@ -2,7 +2,7 @@ dnl run autogen.sh to generate the configure script.
 
 AC_PREREQ(2.59)
 
-AC_INIT(wso2-wsf-php-src, 2.0.0)
+AC_INIT(wso2-wsf-php-src, 2.1.0)
 AC_CANONICAL_SYSTEM
 AM_CONFIG_HEADER(config.h)
 AM_INIT_AUTOMAKE([tar-ustar])
@@ -92,7 +92,7 @@ AC_ARG_ENABLE(rampart, [  --enable-rampart build ramprt. default=yes],
 )
 
 AC_MSG_CHECKING(whether to build libxml2 xml parser library)
-AC_ARG_ENABLE(libxml2, [  --enable-libxml2    build libxml2 xml parser library wrapper. default=yes],
+AC_ARG_ENABLE(libxml2, [  --enable-libxml2    build libxml2 xml parser library wrapper. default=no],
 [ case "${enableval}" in
   no)
     AC_MSG_RESULT(no)
@@ -106,7 +106,7 @@ AC_ARG_ENABLE(libxml2, [  --enable-libxml2    build libxml2 xml parser library w
 
     ;;
   esac ],
-  AC_MSG_RESULT(yes)
+  AC_MSG_RESULT(no)
   WRAPPER_DIR="libxml2"
 )
 
@@ -114,7 +114,7 @@ AC_ARG_ENABLE(libxml2, [  --enable-libxml2    build libxml2 xml parser library w
 GUTHTHILA_LIBS=""
 
 AC_MSG_CHECKING(whether to build guththila xml parser library)
-AC_ARG_ENABLE(guththila, [  --enable-guththila    build guththila xml parser library wrapper. default=no],
+AC_ARG_ENABLE(guththila, [  --enable-guththila    build guththila xml parser library wrapper. default=yes],
 [ case "${enableval}" in
   no)
     AC_MSG_RESULT(no)
@@ -183,7 +183,7 @@ AC_ARG_WITH(apr,
 )
 
 AC_MSG_CHECKING(whether to build tests)
-AC_ARG_ENABLE(tests, [  --enable-tests    build tests. default=yes],
+AC_ARG_ENABLE(tests, [  --enable-tests    build tests. default=no],
 [ case "${enableval}" in
   yes)
     AC_MSG_RESULT(yes)

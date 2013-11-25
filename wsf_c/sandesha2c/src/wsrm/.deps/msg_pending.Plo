@@ -1,0 +1,162 @@
+msg_pending.lo: msg_pending.c ../../include/sandesha2_msg_pending.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_soap_envelope.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_env.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_allocator.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_utils_defines.h \
+ /usr/lib/gcc/x86_64-linux-gnu/4.6/include/stddef.h \
+ /usr/lib/gcc/x86_64-linux-gnu/4.6/include/stdint.h /usr/include/stdint.h \
+ /usr/include/features.h /usr/include/x86_64-linux-gnu/bits/predefs.h \
+ /usr/include/x86_64-linux-gnu/sys/cdefs.h \
+ /usr/include/x86_64-linux-gnu/bits/wordsize.h \
+ /usr/include/x86_64-linux-gnu/gnu/stubs.h \
+ /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
+ /usr/include/x86_64-linux-gnu/bits/wchar.h /usr/include/stdlib.h \
+ /usr/include/x86_64-linux-gnu/bits/stdlib.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_error.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_log.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_thread_pool.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_thread.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_node.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_utils.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_date_time.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_base64_binary.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_base64.h \
+ /usr/include/assert.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_element.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_namespace.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_output.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_xml_writer.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_defines.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_array_list.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_string.h \
+ /usr/include/string.h /usr/include/x86_64-linux-gnu/bits/string.h \
+ /usr/include/x86_64-linux-gnu/bits/string2.h /usr/include/endian.h \
+ /usr/include/x86_64-linux-gnu/bits/endian.h \
+ /usr/include/x86_64-linux-gnu/bits/types.h \
+ /usr/include/x86_64-linux-gnu/bits/typesizes.h \
+ /usr/include/x86_64-linux-gnu/bits/string3.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_attribute.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_qname.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_children_iterator.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_text.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_data_handler.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_children_qname_iterator.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_child_element_iterator.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_hash.h \
+ ../../include/sandesha2_error.h ../../include/sandesha2_constants.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_soap_header.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_children_with_specific_attribute_iterator.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_soap_header_block.h \
+ /home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/include/axis2_const.h
+
+../../include/sandesha2_msg_pending.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_soap_envelope.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_env.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_allocator.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_utils_defines.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/4.6/include/stddef.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/4.6/include/stdint.h:
+
+/usr/include/stdint.h:
+
+/usr/include/features.h:
+
+/usr/include/x86_64-linux-gnu/bits/predefs.h:
+
+/usr/include/x86_64-linux-gnu/sys/cdefs.h:
+
+/usr/include/x86_64-linux-gnu/bits/wordsize.h:
+
+/usr/include/x86_64-linux-gnu/gnu/stubs.h:
+
+/usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
+
+/usr/include/x86_64-linux-gnu/bits/wchar.h:
+
+/usr/include/stdlib.h:
+
+/usr/include/x86_64-linux-gnu/bits/stdlib.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_error.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_log.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_thread_pool.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_thread.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_node.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_utils.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_date_time.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_base64_binary.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_base64.h:
+
+/usr/include/assert.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_element.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_namespace.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_output.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_xml_writer.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_defines.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_array_list.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_string.h:
+
+/usr/include/string.h:
+
+/usr/include/x86_64-linux-gnu/bits/string.h:
+
+/usr/include/x86_64-linux-gnu/bits/string2.h:
+
+/usr/include/endian.h:
+
+/usr/include/x86_64-linux-gnu/bits/endian.h:
+
+/usr/include/x86_64-linux-gnu/bits/types.h:
+
+/usr/include/x86_64-linux-gnu/bits/typesizes.h:
+
+/usr/include/x86_64-linux-gnu/bits/string3.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_attribute.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_qname.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_children_iterator.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_text.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_data_handler.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_children_qname_iterator.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_child_element_iterator.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/util/include/axutil_hash.h:
+
+../../include/sandesha2_error.h:
+
+../../include/sandesha2_constants.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_soap_header.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_children_with_specific_attribute_iterator.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/axiom/include/axiom_soap_header_block.h:
+
+/home/kkruger/wso2-wsf-php-src-2.1.0/wsf_c/sandesha2c/../axis2c/include/axis2_const.h:

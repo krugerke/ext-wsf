@@ -32,6 +32,9 @@
 #include <sandesha2_client_constants.h>
 #include <sandesha2_sender_mgr.h>
 #include <platforms/axutil_platform_auto_sense.h>
+#include <axis2_rm_assertion.h>
+#include <sandesha2_spec_specific_consts.h>
+#include <sandesha2_property_mgr.h>
 
 axis2_status_t AXIS2_CALL
 sandesha2_out_handler_invoke(
@@ -91,6 +94,13 @@ sandesha2_out_handler_invoke(
         temp_prop = NULL;
     }
 
+    if(sandesha2_util_is_rstr_msg(env, msg_ctx))
+    {
+        AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI,
+            "[sandesha2] A RSTR message. Sandesha don't process.");
+        return AXIS2_SUCCESS;
+    }
+
     conf_ctx = axis2_msg_ctx_get_conf_ctx(msg_ctx, env);
     if(!conf_ctx)
     {
@@ -122,6 +132,7 @@ sandesha2_out_handler_invoke(
     {
         axutil_qname_free(module_qname, env);
     }
+
     temp_prop = axis2_msg_ctx_get_property(msg_ctx, env, SANDESHA2_APPLICATION_PROCESSING_DONE);
     if(temp_prop)
     {
@@ -154,6 +165,48 @@ sandesha2_out_handler_invoke(
     if(dummy_msg_str && 0 == axutil_strcmp(AXIS2_VALUE_TRUE, dummy_msg_str))
     {
         dummy_msg = AXIS2_TRUE;
+    }
+
+    temp_prop = axis2_msg_ctx_get_property(msg_ctx, env, AXIS2_SVC_CLIENT_CLOSED);
+    if(temp_prop)
+    {
+        axis2_char_t *spec_version = NULL;
+
+        axis2_endpoint_ref_t *reply_to = axis2_msg_ctx_get_reply_to(msg_ctx, env);
+        if(reply_to)
+        {
+            axis2_char_t *address = axis2_endpoint_ref_get_address(reply_to, env);
+            AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "dam_reply_to_address:%s", address);
+        }
+        spec_version = sandesha2_utils_get_rm_version(env, msg_ctx);
+
+        if(!axutil_strcmp(SANDESHA2_SPEC_VERSION_1_1, spec_version))
+        {
+            axis2_char_t *action = NULL;
+            axutil_string_t *str_action = NULL;
+
+            action = sandesha2_spec_specific_consts_get_terminate_seq_action(env, spec_version);
+            str_action = axutil_string_create(env, action);
+            axis2_msg_ctx_set_soap_action(msg_ctx, env, str_action);
+            axutil_string_free(str_action, env);
+            /*axis2_msg_ctx_set_reply_to(msg_ctx, env, NULL);*/
+            msg_type = sandesha2_msg_ctx_set_msg_type(rm_msg_ctx, env, 
+                SANDESHA2_MSG_TYPE_CLOSE_SEQ);
+        }
+        else if(!axutil_strcmp(SANDESHA2_SPEC_VERSION_1_0, spec_version))
+        {
+            axutil_property_t *property = NULL;
+            axutil_string_t *str_action = NULL;
+            
+            /*axis2_msg_info_headers_set_action(axis2_msg_ctx_get_msg_info_headers(msg_ctx, env), 
+             * env, SANDESHA2_SPEC_2005_02_SOAP_ACTION_LAST_MESSAGE); */
+            str_action = axutil_string_create(env, SANDESHA2_SPEC_2005_02_SOAP_ACTION_LAST_MESSAGE);
+            axis2_msg_ctx_set_soap_action(msg_ctx, env, str_action);
+            axutil_string_free(str_action, env);
+            property = axutil_property_create_with_args(env, 0, 0, 0, AXIS2_VALUE_TRUE);
+            axis2_msg_ctx_set_property(msg_ctx, env, "Sandesha2LastMessage", property);
+            /*axis2_msg_ctx_set_reply_to(msg_ctx, env, NULL);*/
+        }
     }
 
     msg_type = sandesha2_msg_ctx_get_msg_type(rm_msg_ctx, env);
@@ -197,6 +250,7 @@ sandesha2_out_handler_invoke(
     {
         /* Message should not be sent in an exception situation */
 
+        AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[sandesha2] Pausing message context");
         axis2_msg_ctx_set_paused(msg_ctx, env, AXIS2_TRUE);
         if(rm_msg_ctx)
         {

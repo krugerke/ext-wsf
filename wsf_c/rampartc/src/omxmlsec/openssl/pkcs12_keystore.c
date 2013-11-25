@@ -29,6 +29,48 @@ struct pkcs12_keystore {
     openssl_pkey_t *pvt_key;
 };
 
+AXIS2_EXTERN axis2_char_t* AXIS2_CALL 
+pkcs12_keystore_get_keystore_file(
+	pkcs12_keystore_t* keystore)
+{
+	return keystore->keystore_file;
+}
+
+AXIS2_EXTERN axis2_char_t* AXIS2_CALL 
+pkcs12_keystore_get_password(
+	pkcs12_keystore_t* keystore)
+{
+	return keystore->keystore_password;
+}
+
+AXIS2_EXTERN PKCS12* AXIS2_CALL 
+pkcs12_keystore_get_keystore(
+	pkcs12_keystore_t* keystore)
+{
+	return keystore->keystore;
+}
+
+AXIS2_EXTERN X509* AXIS2_CALL 
+pkcs12_keystore_get_cert(
+	pkcs12_keystore_t* keystore)
+{
+	return keystore->cert;
+}
+
+AXIS2_EXTERN STACK_OF(X509)* AXIS2_CALL 
+pkcs12_keystore_get_other_certs(
+	pkcs12_keystore_t* keystore)
+{
+	return keystore->other_certs;
+}
+
+AXIS2_EXTERN openssl_pkey_t* AXIS2_CALL 
+pkcs12_keystore_get_pvt_key(
+	pkcs12_keystore_t* keystore)
+{
+	return keystore->pvt_key;
+}
+
 AXIS2_EXTERN pkcs12_keystore_t * AXIS2_CALL 
 pkcs12_keystore_create(
         const axutil_env_t *env,
@@ -128,7 +170,8 @@ pkcs12_keystore_create_from_buffer(
     return keystore;
 }
 
-axutil_array_list_t * AXIS2_CALL pkcs12_keystore_populate_cert_array(
+AXIS2_EXTERN axutil_array_list_t * AXIS2_CALL 
+pkcs12_keystore_populate_cert_array(
         const axutil_env_t *env,
         STACK_OF(X509) * other_certs) 
 {
@@ -165,6 +208,9 @@ oxs_x509_cert_t * AXIS2_CALL pkcs12_keystore_populate_oxs_cert(
     axis2_char_t *x509_common_name = NULL;
     EVP_PKEY *pub_key = NULL;
     openssl_pkey_t *open_pubkey = NULL;
+	axis2_char_t* x509_cert_valid_from = NULL;
+	int x509_cert_version = 0;
+	axis2_char_t* x509_cert_alias = NULL;
     oxs_x509_cert_t *cert_out = NULL;
 
     x509_cert_data = openssl_x509_get_cert_data(env, cert_in);
@@ -174,6 +220,9 @@ oxs_x509_cert_t * AXIS2_CALL pkcs12_keystore_populate_oxs_cert(
     x509_cert_finger = openssl_x509_get_info(env, OPENSSL_X509_INFO_FINGER, cert_in);
     x509_cert_key_id = openssl_x509_get_subject_key_identifier(env, cert_in);
     x509_common_name = openssl_x509_get_common_name(env, cert_in);
+	x509_cert_valid_from = openssl_x509_get_info(env, OPENSSL_X509_INFO_VALID_FROM, cert_in);
+	x509_cert_version = atoi(openssl_x509_get_info(env, OPENSSL_X509_INFO_VERSION, cert_in));
+	x509_cert_alias = openssl_x509_get_alias(env, cert_in);
 
     cert_out = oxs_x509_cert_create(env);
     if (!cert_out) {
@@ -188,6 +237,9 @@ oxs_x509_cert_t * AXIS2_CALL pkcs12_keystore_populate_oxs_cert(
     oxs_x509_cert_set_serial_number(cert_out, env, openssl_x509_get_serial(env, cert_in));
     oxs_x509_cert_set_key_identifier(cert_out, env, x509_cert_key_id);
     oxs_x509_cert_set_common_name(cert_out, env, x509_common_name);
+	oxs_x509_cert_set_valid_from(cert_out, env, x509_cert_valid_from);
+	oxs_x509_cert_set_version(cert_out, env, x509_cert_version);
+	oxs_x509_cert_set_alias(cert_out, env, x509_cert_alias);
 
     openssl_x509_get_pubkey(env, cert_in, &pub_key);
     open_pubkey = openssl_pkey_create(env);

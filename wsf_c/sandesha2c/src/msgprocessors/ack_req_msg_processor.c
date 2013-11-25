@@ -182,6 +182,13 @@ sandesha2_ack_req_msg_processor_process_in_msg (
     conf_ctx = axis2_msg_ctx_get_conf_ctx(msg_ctx, env);
     dbname = sandesha2_util_get_dbname(env, conf_ctx);
     storage_mgr = sandesha2_utils_get_storage_mgr(env, dbname);
+    if(!storage_mgr)
+    {
+        AXIS2_LOG_ERROR(env->log, AXIS2_LOG_SI, "[sandesha2] Could not create storage manager.");
+        AXIS2_ERROR_SET(env->error, SANDESHA2_ERROR_COULD_NOT_CREATE_STORAGE_MANAGER, 
+                AXIS2_FAILURE);
+        return AXIS2_FAILURE;
+    }
     seq_prop_mgr = sandesha2_permanent_seq_property_mgr_create(env, dbname);
     acks_to_bean = sandesha2_seq_property_mgr_retrieve(seq_prop_mgr, env, seq_id,
         SANDESHA2_SEQ_PROP_ACKS_TO_EPR);
@@ -310,6 +317,7 @@ sandesha2_ack_req_msg_processor_process_in_msg (
         axis2_msg_ctx_t *msg_ctx = NULL;
         axis2_engine_t *engine = NULL;
         axis2_transport_out_desc_t *transport_out = NULL;
+        axis2_svc_t *svc = NULL;
         
         sender_mgr = sandesha2_permanent_sender_mgr_create(env, dbname);
         key = axutil_uuid_gen(env);
@@ -330,8 +338,26 @@ sandesha2_ack_req_msg_processor_process_in_msg (
         /* Avoid retrieving property bean from operation until it is availbale */
         /*prop_bean = sandesha2_utils_get_property_bean_from_op(env, 
             axis2_msg_ctx_get_op(msg_ctx, env));*/
-        prop_bean = sandesha2_utils_get_property_bean(env, 
-            axis2_conf_ctx_get_conf(conf_ctx, env));
+    
+        svc = axis2_msg_ctx_get_svc(ack_msg_ctx, env);
+        if(!svc)
+        {
+            AXIS2_LOG_ERROR(env->log, AXIS2_LOG_SI,
+                "[sandesha2][ack_req_msg_processor.c] service is NULL");
+            return AXIS2_FAILURE;
+        }
+
+        prop_bean = sandesha2_utils_get_property_bean(env, svc);
+        if(!prop_bean)
+        {
+            AXIS2_LOG_ERROR(env->log, AXIS2_LOG_SI,
+                "[sandesha2][ack_req_msg_processor.c] Property bean is NULL");
+            return AXIS2_FAILURE;
+        }
+
+        /*prop_bean = sandesha2_utils_get_property_bean(env, 
+            axis2_conf_ctx_get_conf(conf_ctx, env));*/
+        prop_bean = sandesha2_utils_get_property_bean(env, svc);    
         ack_interval = sandesha2_property_bean_get_ack_interval(prop_bean, env);
         time_to_send = sandesha2_utils_get_current_time_in_millis(env) +
             ack_interval;

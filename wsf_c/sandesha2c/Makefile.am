@@ -1,10 +1,9 @@
 datadir=$(prefix)/modules/sandesha2
-samplesdir=$(prefix)/samples/sandesha2c
-includedir=$(prefix)/include/sandesha2-0.91
+includedir=$(prefix)/include/wsfc-2.0.0
 docsdir=$(prefix)/docs/sandesha2c
 sysconfdir=$(prefix)
-samplesdir=$(prefix)/samples/sandesha2
-scriptsdir=$(prefix)/bin/sandesha2
+samplesdir=$(prefix)/samples/src/sandesha2c
+scriptsdir=$(prefix)/samples/bin/sandesha2c
 
 SUBDIRS = src
 samples_DATA=
@@ -21,6 +20,7 @@ EXTRA_DIST=LICENSE config xdocs build ides
 scripts_DATA=config/*.bat config/*.sh
 
 install-data-hook:
+	mkdir -p $(samplesdir)
 	cp -rf samples/* $(samplesdir)
 
 

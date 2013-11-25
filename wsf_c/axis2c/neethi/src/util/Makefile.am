@@ -1,5 +1,5 @@
 TESTS =
-headerdir=$(prefix)/include/axis2-1.5.0
+headerdir=$(prefix)/include/wsfc-2.0.0
 lib_LTLIBRARIES = libneethi_util.la
 
 libneethi_util_la_SOURCES = options.c

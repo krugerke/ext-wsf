@@ -1,4 +1,3 @@
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -28,10 +27,12 @@ struct rp_rampart_config_t
     axis2_char_t *sct_provider;
     axis2_char_t *password_type;
     axis2_char_t *time_to_live;
+    axis2_char_t *clock_skew_buffer;
+    axis2_char_t *need_millisecond_precision;
     axis2_char_t *receiver_certificate_file;
     axis2_char_t *certificate_file;
     axis2_char_t *private_key_file;
-	axis2_char_t *pkcs12_file;
+    axis2_char_t *pkcs12_file;
     axis2_char_t *rd_val;
     int ref;
 };
@@ -44,11 +45,10 @@ rp_rampart_config_create(
 
     AXIS2_ENV_CHECK(env, NULL);
 
-    rampart_config = (rp_rampart_config_t *) AXIS2_MALLOC(env->allocator,
-                                                          sizeof
-                                                          (rp_rampart_config_t));
+    rampart_config = (rp_rampart_config_t *)AXIS2_MALLOC(env->allocator,
+        sizeof(rp_rampart_config_t));
 
-    if (rampart_config == NULL)
+    if(rampart_config == NULL)
     {
         AXIS2_ERROR_SET(env->error, AXIS2_ERROR_NO_MEMORY, AXIS2_FAILURE);
         return NULL;
@@ -64,7 +64,9 @@ rp_rampart_config_create(
     rampart_config->sct_provider = NULL;
     rampart_config->password_type = NULL;
     rampart_config->time_to_live = NULL;
-	rampart_config->pkcs12_file = NULL;
+    rampart_config->clock_skew_buffer = NULL;
+    rampart_config->need_millisecond_precision = NULL;
+    rampart_config->pkcs12_file = NULL;
     rampart_config->rd_val = NULL;
     rampart_config->ref = 0;
 
@@ -78,9 +80,9 @@ rp_rampart_config_free(
 {
     AXIS2_ENV_CHECK(env, AXIS2_FAILURE);
 
-    if (rampart_config)
+    if(rampart_config)
     {
-        if (--(rampart_config->ref) > 0)
+        if(--(rampart_config->ref) > 0)
         {
             return;
         }
@@ -347,31 +349,67 @@ rp_rampart_config_set_time_to_live(
 }
 
 AXIS2_EXTERN axis2_char_t *AXIS2_CALL
-rp_rampart_config_get_pkcs12_file(
-	rp_rampart_config_t * rampart_config,
-	const axutil_env_t * env)
+rp_rampart_config_get_clock_skew_buffer(
+    rp_rampart_config_t * rampart_config,
+    const axutil_env_t * env)
 {
-	return rampart_config->pkcs12_file;
+    return rampart_config->clock_skew_buffer;
+}
+
+AXIS2_EXTERN axis2_status_t AXIS2_CALL
+rp_rampart_config_set_clock_skew_buffer(
+    rp_rampart_config_t * rampart_config,
+    const axutil_env_t * env,
+    axis2_char_t * clock_skew_buffer)
+{
+    rampart_config->clock_skew_buffer = clock_skew_buffer;
+    return AXIS2_SUCCESS;
+}
+
+AXIS2_EXTERN axis2_char_t *AXIS2_CALL
+rp_rampart_config_get_need_millisecond_precision(
+    rp_rampart_config_t * rampart_config,
+    const axutil_env_t * env)
+{
+    return rampart_config->need_millisecond_precision;
+}
+
+AXIS2_EXTERN axis2_status_t AXIS2_CALL
+rp_rampart_config_set_need_millisecond_precision(
+    rp_rampart_config_t * rampart_config,
+    const axutil_env_t * env,
+    axis2_char_t * need_millisecond_precision)
+{
+    rampart_config->need_millisecond_precision = need_millisecond_precision;
+    return AXIS2_SUCCESS;
+}
+
+AXIS2_EXTERN axis2_char_t *AXIS2_CALL
+rp_rampart_config_get_pkcs12_file(
+    rp_rampart_config_t * rampart_config,
+    const axutil_env_t * env)
+{
+    return rampart_config->pkcs12_file;
 }
 
 AXIS2_EXTERN axis2_status_t AXIS2_CALL
 rp_rampart_config_set_pkcs12_file(
-	rp_rampart_config_t * rampart_config,
-	const axutil_env_t *env,
-	axis2_char_t * pkcs12_file)
+    rp_rampart_config_t * rampart_config,
+    const axutil_env_t *env,
+    axis2_char_t * pkcs12_file)
 {
-	if(rampart_config)
-	{
-		if(pkcs12_file)
-		{
-			rampart_config->pkcs12_file = pkcs12_file;
-			return AXIS2_SUCCESS;
-		}
+    if(rampart_config)
+    {
+        if(pkcs12_file)
+        {
+            rampart_config->pkcs12_file = pkcs12_file;
+            return AXIS2_SUCCESS;
+        }
 
-		return AXIS2_FAILURE;
-	}
+        return AXIS2_FAILURE;
+    }
 
-	return AXIS2_FAILURE;
+    return AXIS2_FAILURE;
 }
 
 AXIS2_EXTERN axis2_char_t *AXIS2_CALL

@@ -62,6 +62,7 @@ extern "C"
     /*Default values*/
 #define RAMPART_DEFAULT_KT_ALGO OXS_DEFAULT_KT_ALGO_HREF
 #define RAMPART_STR_DEFAULT OXS_STR_DEFAULT
+#define RAMPART_TIMESTAMP_TOKEN_DEFAULT_TIME_TO_LIVE 300
 
     /* rampart element names*/
 #define RAMPART_SECURITY "Security"
@@ -109,6 +110,8 @@ extern "C"
 #define RAMPART_FAULT_FAILED_AUTHENTICATION         "wsse:FailedAuthentication"
 #define RAMPART_FAULT_FAILED_CHECK                  "wsse:FailedCheck"
 #define RAMPART_FAULT_SECURITY_TOKEN_UNAVAILABLE    "wsse:SecurityTokenUnavailable"
+#define RAMPART_FAULT_TRUST_REQUEST_FAILED          "wst:RequestFailed"
+#define RAMPART_FAULT_TRUST_REQUEST_INVALID         "wst:InvalidRequest"
 
     /***********fault related strings*********/
 #define RAMPART_FAULT_IN_TIMESTAMP             "wsse:Timestamp"
@@ -118,6 +121,9 @@ extern "C"
 #define RAMPART_FAULT_IN_SIGNATURE             "ds:Signature"
 #define RAMPART_FAULT_MSG_REPLAYED             "rampc:Message-Replayed"
 #define RAMPART_FAULT_IN_POLICY                "rampc:Policy"
+
+#define RAMPART_FAULT_ELEMENT_LOCAL_NAME       "ProblemSecurityHeader"
+
 
     /*Dynamically set values*/
 #define RAMPART_ACTION_PASSWORD "password"
@@ -137,7 +143,6 @@ extern "C"
 #define RAMPART_SPR_ENC_CHECKED "SPR_ENC_Checked"
 #define RAMPART_SPR_SIG_VALUE "SPR_Sig_Val"
 #define RAMPART_SPR_ENDORSED_VALUE "SPR_Endorsed_Value"
-#define RAMPART_SPR_SIG_VERIFIED "SPR_Sig_Verified"
 #define RAMPART_SPR_SIG_ENCRYPTED "SPR_Sig_Encrypted"
 #define RAMPART_SPR_SIG_CONFIRM_FOUND "SPR_Sig_Confirmation_Found"
 #define RAMPART_SPR_BODY_ENCRYPTED "SPR_Body_Encrypted"
@@ -160,8 +165,13 @@ extern "C"
 #define RAMPART_SCT_ID_TYPE_LOCAL 1
 #define RAMPART_SCT_ID_TYPE_GLOBAL 2
 
+#define RAMPART_USERNAME_TOKEN_NONCE_LENGTH 24
+
 #define RAMPART_ENC_TOKEN_ID "EncryptionTokenID"
 #define RAMPART_SIG_TOKEN_ID "SignatureTokenID"
+
+#define RAMPART_BST_ID_PREFIX "BST-"
+#define RAMPART_EMBED_TOKEN_ID "ID"
 
 #ifdef __cplusplus
 }

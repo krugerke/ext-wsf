@@ -34,6 +34,9 @@
 #include <axis2_op.h>
 #include <sandesha2_property_bean.h>
 #include <sandesha2_msg_ctx.h>
+#include <axis2_policy_include.h>
+#include <axis2_svc.h>
+#include <axis2_rm_assertion.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -62,8 +65,7 @@ sandesha2_utils_remove_soap_body_part(
 AXIS2_EXTERN axis2_char_t* AXIS2_CALL
 sandesha2_utils_get_rm_version(
     const axutil_env_t *env,
-    axis2_char_t *key,
-    sandesha2_seq_property_mgr_t *seq_prop_mgr);
+    axis2_msg_ctx_t *msg_ctx);
                         
 AXIS2_EXTERN sandesha2_storage_mgr_t* AXIS2_CALL
 sandesha2_utils_get_storage_mgr(
@@ -80,7 +82,8 @@ sandesha2_utils_get_seq_property(
 AXIS2_EXTERN sandesha2_property_bean_t* AXIS2_CALL
 sandesha2_utils_get_property_bean(
     const axutil_env_t *env,
-    axis2_conf_t *conf);
+    axis2_svc_t *svc
+    /*axis2_conf_t *conf*/);
 
 AXIS2_EXTERN sandesha2_property_bean_t* AXIS2_CALL
 sandesha2_utils_get_property_bean_from_op(
@@ -291,6 +294,32 @@ axis2_endpoint_ref_t *AXIS2_CALL
 sandesha2_util_endpoint_ref_clone(
     const axutil_env_t * env,
     axis2_endpoint_ref_t * endpoint_ref);
+
+axis2_rm_assertion_t *AXIS2_CALL
+sandesha2_util_get_rm_assertion(
+    const axutil_env_t * env,
+    axis2_svc_t * svc);
+
+axis2_char_t *AXIS2_CALL
+sandesha2_util_get_string_from_node_list(
+    const axutil_env_t *env,
+    axutil_array_list_t *node_list);
+
+axutil_array_list_t *AXIS2_CALL
+sandesha2_util_get_node_list_from_string(
+    const axutil_env_t *env,
+    axis2_char_t *node_list_str);
+
+axis2_bool_t AXIS2_CALL
+sandesha2_util_is_rstr_msg(
+    const axutil_env_t *env,
+    axis2_msg_ctx_t *msg_ctx);
+
+void AXIS2_CALL
+sandesha2_util_clone_property_map(
+    const axutil_env_t * env,
+    axis2_msg_ctx_t *ref_msg_ctx,
+    axis2_msg_ctx_t *new_msg_ctx);
 
 /** @} */
 #ifdef __cplusplus

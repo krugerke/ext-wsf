@@ -36,7 +36,7 @@ extern "C"
      * @{
      */
 
-#if defined( WIN32 )
+#if defined(_WIN32 )
 #include "windows/axutil_windows.h"
 #include "windows/axutil_dir_windows.h"
 #include "windows/axutil_uuid_gen_windows.h"
@@ -44,7 +44,7 @@ extern "C"
 #include "windows/axutil_date_time_util_windows.h"
 #include "windows/axutil_thread_windows.h"
 #elif defined ( __OS400__  )
-#include <os400/axis2_os400.h>
+#include "os400/axutil_os400.h"
 #elif defined ( AIX )
 #include <aix/aix.h>
 #elif defined ( HPUX )

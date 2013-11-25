@@ -2,7 +2,7 @@ dnl run autogen.sh to generate the configure script.
 
 AC_PREREQ(2.59)
 
-AC_INIT(rampartc-src, 1.2.0)
+AC_INIT(rampartc-src, 1.3.0)
 AC_CANONICAL_SYSTEM
 AM_CONFIG_HEADER(config.h)
 AM_INIT_AUTOMAKE([tar-ustar])
@@ -107,7 +107,10 @@ AC_ARG_WITH(openssl,
         openssllib="-L$withval/lib"
     elif test -d '/usr/include/openssl'; then
         opensslinc="-I/usr/include/openssl"
-        openssllib=""
+        openssllib="-L/usr/lib"
+    elif test -d '/usr/local/include/openssl'; then
+        opensslinc="-I/usr/local/include/openssl"
+        openssllib="-L/usr/lib -L/usr/local/lib"
     else
         AC_MSG_ERROR(could not find openssl. stop)
     fi
@@ -120,6 +123,7 @@ OPENSSLINC=$opensslinc
 OPENSSLLIB=$openssllib
 AXIOMINC="-I$abs_top_builddir/../axis2c/axiom/include"
 UTILINC="-I$abs_top_builddir/../axis2c/util/include"
+VERSION_NO="3:0:3"
 AC_SUBST(AXIS2INC)
 AC_SUBST(AXIOMINC)
 AC_SUBST(UTILINC)
@@ -128,7 +132,7 @@ AC_SUBST(NEETHIINC)
 AC_SUBST(XMLSCHEMAINC)
 AC_SUBST(OPENSSLINC)
 AC_SUBST(OPENSSLLIB)
-
+AC_SUBST(VERSION_NO)
 
 AC_CONFIG_FILES([Makefile \
     src/Makefile \

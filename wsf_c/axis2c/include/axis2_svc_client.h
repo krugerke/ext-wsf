@@ -55,21 +55,6 @@
 #include <axutil_string.h>
 #include <neethi_policy.h>
 
-/** Name of anonymous service */
-#define AXIS2_ANON_SERVICE  "__ANONYMOUS_SERVICE__"
-
-/** out-only MEP operation name */
-#define AXIS2_ANON_OUT_ONLY_OP "__OPERATION_OUT_ONLY__"
-
-/** out-only robust MEP operation name */
-#define AXIS2_ANON_ROBUST_OUT_ONLY_OP "__OPERATION_ROBUST_OUT_ONLY__"
-
-/** out-in MEP operation name */
-#define AXIS2_ANON_OUT_IN_OP "__OPERATION_OUT_IN__"
-
-/** wsdl location in repo*/
-#define AXIS2_WSDL_LOCATION_IN_REPO "woden"
-
 #ifdef __cplusplus
 extern "C"
 {
@@ -88,6 +73,19 @@ extern "C"
      */
     AXIS2_EXTERN axis2_svc_t *AXIS2_CALL
     axis2_svc_client_get_svc(
+        const axis2_svc_client_t * svc_client,
+        const axutil_env_t * env);
+
+    /**
+     * Returns the axis2_conf_ctx_t. This is useful when creating service clients using
+     * the same configuration context as the original service client.
+     * @param svc_client pointer to service client struct
+     * @param env pointer to environment struct
+     * @return a pointer to axis configuration context struct, or NULL. 
+     * Returns a reference, not a cloned copy. 
+     */
+    AXIS2_EXTERN axis2_conf_ctx_t *AXIS2_CALL
+    axis2_svc_client_get_conf_ctx(
         const axis2_svc_client_t * svc_client,
         const axutil_env_t * env);
 
@@ -520,30 +518,6 @@ extern "C"
         axis2_svc_t * svc);
 
     /**
-     * Creates a service client struct. This constructor is used in dynamic
-     * invocation.
-     * @param env pointer to environment struct
-     * @param conf_ctx pointer to configuration context. Newly created client 
-     * assumes ownership of the conf_ctx
-     * @param wsdl_uri pointer to Uri of the wsdl file.
-     * @param wsdl_svc_qname pointer to qname of the wsdl service. If this is NULL
-     * first service is assumed
-     * @param endpoint_name pointer to endpoint name. If this is NULL first endpoint
-     * is assumed.
-     * @param client_home name of the directory that contains the Axis2/C repository
-     * @return a pointer to newly created service client struct,
-     *         or NULL on error with error code set in environment's error
-     */
-    AXIS2_EXTERN axis2_svc_client_t *AXIS2_CALL
-    axis2_svc_client_create_for_dynamic_invocation(
-        const axutil_env_t * env,
-        axis2_conf_ctx_t * conf_ctx,
-        const axutil_uri_t * wsdl_uri,
-        const axutil_qname_t * wsdl_svc_qname,
-        const axis2_char_t * endpoint_name,
-        const axis2_char_t * client_home);
-
-    /**
      * Gets the last response SOAP envelope. 
      * @param svc_client pointer to service_client struct
      * @param env env pointer to environment struct
@@ -646,6 +620,17 @@ extern "C"
      */
     AXIS2_EXTERN int AXIS2_CALL
     axis2_svc_client_get_http_status_code(
+        axis2_svc_client_t * svc_client,
+        const axutil_env_t * env);
+
+    /**
+     * Close the service client. 
+     * @param svc_client pointer to service_client struct
+     * @param env pointer to environment struct
+     * @return AXIS2_FAILURE if there was a fault, else AXIS2_SUCCESS
+     */
+    AXIS2_EXTERN axis2_status_t AXIS2_CALL
+    axis2_svc_client_close(
         axis2_svc_client_t * svc_client,
         const axutil_env_t * env);
 

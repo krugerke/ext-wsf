@@ -116,13 +116,15 @@ extern "C"
 #include "axutil_uuid_gen_unix.h"   /* uuid_gen unix implementation */
 #include <netinet/tcp.h>        /* TCP_NODELAY */
 #include <utime.h>
+#ifdef HAVE_GETOPT_H
 #include <getopt.h>
+#endif /*HAVE_GETOPT_H*/
 #include "axutil_date_time_util_unix.h"
 
     /* for file access handling */
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif                          /*HAVE_UNISTD_H */
+#endif /*HAVE_UNISTD_H */
 
     /* network handling */
 #include <sys/socket.h>
@@ -139,7 +141,7 @@ extern "C"
 
 #define AXIS2_STRRCHR(x, y) (strrchr(x, y))
 
-#define AXIS2_PLATFORM_SLEEP(x) sleep(0);
+#define AXIS2_PLATFORM_SLEEP(x) sleep(0)
 
     /** sleep function abstraction */
 #define AXIS2_SLEEP sleep
@@ -149,7 +151,7 @@ extern "C"
      * Get the last error code from the system.
      * Please ensure that this is a thread safe implementation
      * and that it returns a long
-     * @return long the lsat error message for this thread
+     * @return long the last error message for this thread
      */
 
     /*#define AXIS2_GETLASTERROR errno; */
@@ -166,7 +168,7 @@ extern "C"
      * Platform specific method to obtain current thread ID
      */
 #include <pthread.h>
-#define AXIS2_PLATFORM_GET_THREAD_ID pthread_self()
+#define AXIS2_PLATFORM_GET_THREAD_ID() pthread_self()
 
     /**
      * Platform specific method to obtain current time in milli seconds
@@ -216,6 +218,7 @@ extern "C"
 #define AXIS2_FREAD fread
 #define AXIS2_FWRITE fwrite
 #define AXIS2_FCLOSE fclose
+#define AXIS2_FTELL ftell
 #define AXIS2_ACCESS(zpath,imode) access(zpath,imode)
 #define AXIS2_R_OK R_OK         /* test for read permission */
 #define AXIS2_W_OK W_OK         /* test for write permission */
@@ -250,7 +253,7 @@ extern "C"
 #define AXIS2_INADDR_NONE                   (in_addr_t)-1
 #define axis2_unsigned_short_t                uint16_t
 #define AXIS2_CLOSE_SOCKET(sock)            close(sock)
-#define AXIS2_CLOSE_SOCKET_ON_EXIT(sock)    fcntl(sock,F_SETFD, FD_CLOEXEC);
+#define AXIS2_CLOSE_SOCKET_ON_EXIT(sock)    fcntl(sock,F_SETFD, FD_CLOEXEC)
 #define axis2_socket_len_t                  socklen_t
 #define AXIS2_SHUT_WR                       SHUT_WR
 

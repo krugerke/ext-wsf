@@ -18,7 +18,7 @@
 #ifndef GUTHTHILA_DEFINES_H
 #define GUTHTHILA_DEFINES_H
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #define	GUTHTHILA_EXPORT  __declspec(dllexport)
 #else
 #define GUTHTHILA_EXPORT
@@ -31,10 +31,10 @@
 #define GUTHTHILA_CALL
 #endif
 #else
-#if defined(__unix)
-#define GUTHTHILA_CALL
-#else
+#if defined(_WIN32)
 #define GUTHTHILA_CALL __stdcall
+#else
+#define GUTHTHILA_CALL
 #endif
 #endif
 

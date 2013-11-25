@@ -49,6 +49,7 @@
 #include <axis2_desc.h>
 #include <axis2_svc.h>
 #include <axis2_svc_grp_ctx.h>
+#include <axis2_module_desc.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -60,6 +61,7 @@ extern "C"
 
     struct axis2_svc;
     struct axis2_svc_grp_ctx;
+	struct axis2_module_desc;
 
     /**
       * Frees service group.
@@ -119,10 +121,10 @@ extern "C"
      * reference, not a cloned copy
      */
     AXIS2_EXTERN struct axis2_svc *AXIS2_CALL
-                axis2_svc_grp_get_svc(
-                    const axis2_svc_grp_t * svc_grp,
-                    const axutil_env_t * env,
-                    const axutil_qname_t * svc_qname);
+    axis2_svc_grp_get_svc(
+        const axis2_svc_grp_t * svc_grp,
+        const axutil_env_t * env,
+        const axutil_qname_t * svc_qname);
 
     /**
      * Gets all services associated with service group. 
@@ -177,6 +179,18 @@ extern "C"
         const axutil_env_t * env,
         const axis2_char_t * name);
 
+	/**
+	 * Remove a parameter.
+	 * @param svc_grp pointer to service grp struct
+	 * @param env pointer to the environment
+	 * @Param param_name parameter name to be removed
+	 */
+	AXIS2_EXTERN axis2_status_t AXIS2_CALL
+	axis2_svc_grp_remove_param(
+		const axis2_svc_grp_t *svc_grp,
+		const axutil_env_t *env,
+		const axis2_char_t *param_name);
+
     /**
      * Gets all parameters set on service group.
      * @param svc_grp pointer to service group struct
@@ -224,9 +238,9 @@ extern "C"
      * reference, not a cloned copy
      */
     AXIS2_EXTERN struct axis2_conf *AXIS2_CALL
-                axis2_svc_grp_get_parent(
-                    const axis2_svc_grp_t * svc_grp,
-                    const axutil_env_t * env);
+    axis2_svc_grp_get_parent(
+        const axis2_svc_grp_t * svc_grp,
+        const axutil_env_t * env);
 
     /**
      * Sets parent which is of type configuration.
@@ -265,10 +279,9 @@ extern "C"
      * reference, not a cloned copy
      */
     AXIS2_EXTERN axutil_array_list_t *AXIS2_CALL
-
-    axis2_svc_grp_get_all_module_qnames(
-        const axis2_svc_grp_t * svc_grp,
-        const axutil_env_t * env);
+	axis2_svc_grp_get_all_module_qnames(
+		const axis2_svc_grp_t * svc_grp,
+		const axutil_env_t * env);
 
     /**
      * Adds module reference.
@@ -291,7 +304,6 @@ extern "C"
      * a reference, not a cloned copy
      */
     AXIS2_EXTERN axutil_array_list_t *AXIS2_CALL
-
     axis2_svc_grp_get_all_module_refs(
         const axis2_svc_grp_t * svc_grp,
         const axutil_env_t * env);
@@ -306,14 +318,12 @@ extern "C"
      * group, returns a reference, not a cloned copy
      */
     AXIS2_EXTERN struct axis2_svc_grp_ctx *AXIS2_CALL
-
-                axis2_svc_grp_get_svc_grp_ctx(
-                    const axis2_svc_grp_t * svc_grp,
-                    const axutil_env_t * env,
-                    struct axis2_conf_ctx *parent);
+    axis2_svc_grp_get_svc_grp_ctx(
+        const axis2_svc_grp_t * svc_grp,
+        const axutil_env_t * env,
+        struct axis2_conf_ctx *parent);
 
     AXIS2_EXTERN axutil_param_container_t *AXIS2_CALL
-
     axis2_svc_grp_get_param_container(
         const axis2_svc_grp_t * svc_grp,
         const axutil_env_t * env);
@@ -349,6 +359,36 @@ extern "C"
     axis2_svc_grp_get_base(
         const axis2_svc_grp_t * svc_grp,
         const axutil_env_t * env);
+
+	/**
+	 * Checks whether a given module is engaged to the service group
+	 * @param svc_grp pointer to service group
+	 * @param env pointer to the environment struct
+	 * @return pointer to base description struct
+	 */
+
+	AXIS2_EXTERN axis2_bool_t AXIS2_CALL
+	axis2_svc_grp_is_module_engaged(
+		const axis2_svc_grp_t *svc_grp,
+		const axutil_env_t *env,
+		const axutil_qname_t *qname);
+
+	/**
+	 * Disengage a module from a service group. This method will disengage the
+	 * all the services belonging to the service group from the specified module.
+	 * @param svc_grp pointer to the service group instance
+	 * @param env environment struct
+	 * @param mod_desc pointer to the module description instance
+	 * @Param conf pointer to the configuration
+	 */
+
+	AXIS2_EXTERN axis2_status_t AXIS2_CALL
+	axis2_svc_grp_disengage_module(
+		const axis2_svc_grp_t *svc_grp,
+		const axutil_env_t *env,
+		struct axis2_module_desc *module_desc,
+		struct axis2_conf *conf);
+
 
 #ifdef __cplusplus
 }

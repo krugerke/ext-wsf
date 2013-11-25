@@ -17,9 +17,9 @@
 
 // Username Password mapping table
 $user_pass_mapping = array(
-					"Raigama" => "RaigamaPW",
-					"Alice" => "abcd!123",
-					"Bob" => "wxyz!123");
+			"Raigama" => "RaigamaPW",
+			"Alice" => "abcd!123",
+			"Bob" => "wxyz!123");
 
 function echoFunction($inMessage) {
 
@@ -33,7 +33,6 @@ function get_my_password_function($username)
 	//logic to get password from any source (ex: using mysql database
 	// etc)
 	global $user_pass_mapping;
-
 	if(isset($user_pass_mapping[$username])){
 		$password = $user_pass_mapping[$username];
 		return $password;
@@ -45,9 +44,9 @@ function get_my_password_function($username)
 
 $operations = array("echoString" => "echoFunction");
 $actions = array("http://php.axis2.org/samples/echoString" => "echoString");
-$sec_array = array("useUsernameToken" => TRUE);
+$policy_file = file_get_contents("policy.xml");
 
-$policy = new WSPolicy(array("security"=>$sec_array));
+$policy = new WSPolicy($policy_file);
 $sec_token = new WSSecurityToken(array("passwordCallback" => "get_my_password_function",
                                        "passwordType" => "Digest"));
 

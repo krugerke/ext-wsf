@@ -1,4 +1,4 @@
-lib_LTLIBRARIES = libtrust.la
+noinst_LTLIBRARIES = libtrust.la
 
 libtrust_la_SOURCES = context.c \
 			claims.c \
@@ -18,5 +18,5 @@ INCLUDES = -I$(top_builddir)/include \
 	    @OPENSSLINC@ \
 	    @UTILINC@ \
 	    @AXIOMINC@ \
-	    @NEETHIINC@ \
+		@NEETHIINC@ \
 	    @AXIS2INC@

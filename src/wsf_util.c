@@ -1,5 +1,5 @@
 /*
- * Copyright 2005,2008 WSO2, Inc. http://wso2.com
+ * Copyright 2005,2010 WSO2, Inc. http://wso2.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -247,7 +247,9 @@ wsf_env_create (
     allocator->free_fn = wsf_free_wrapper_cli;
     allocator->malloc_fn = wsf_malloc_wrapper_cli;
     allocator->realloc = wsf_realloc_warpper_cli;
-
+    allocator->local_pool = NULL;
+    allocator->global_pool = NULL;
+    allocator->global_pool_ref =0;
     error = axutil_error_create (allocator);
     if (path_tolog && (
             (0 == strcmp (path_tolog, "")) ||
@@ -284,8 +286,10 @@ wsf_env_create_svr (
     allocator->free_fn = wsf_free_wrapper;
     allocator->malloc_fn = wsf_malloc_wrapper;
     allocator->realloc = wsf_realloc_warpper;
-
-
+    allocator->local_pool = NULL;
+    allocator->global_pool = NULL;
+    allocator->global_pool_ref =0;     
+    
     error = axutil_error_create (allocator);
     if (path_tolog && (
             (0 == strcmp (path_tolog, "")) ||
@@ -425,8 +429,9 @@ wsf_request_info_init (wsf_request_info_t *req_info)
     req_info->request_data_length = 0;
 	req_info->transfer_encoding = NULL;
     req_info->query_string = NULL;
-	req_info->param_count = 0;
-	req_info->params = NULL;
+
+	req_info->param_keys = NULL;
+	req_info->param_values = NULL;
 
     return;
 }
@@ -975,8 +980,10 @@ int wsf_util_get_attachments_from_soap_envelope (
                     int data_len = 0;
 					if(!axiom_data_handler_get_cached(data_handler, env))
 					{
-						axiom_data_handler_read_from (data_handler, env, &data, &data_len);
-	                    add_assoc_stringl (cid2str, cid, data, data_len, 1);
+						data = axiom_data_handler_get_input_stream(data_handler, env);
+						data_len = axiom_data_handler_get_input_stream_len(data_handler, env);
+						/* axiom_data_handler_read_from (data_handler, env, &data, &data_len);*/
+	                    			add_assoc_stringl (cid2str, cid, data, data_len, 1);
 					}else
 					{
 						data = axiom_data_handler_get_file_name(data_handler, env);
@@ -1379,6 +1386,9 @@ wsf_util_handle_fault_reason(
             if(text_value)
 			{
 				add_property_string(fault_obj, WSF_FAULT_REASON , text_value, 1);
+
+				zend_update_property_string(zend_exception_get_default(TSRMLS_C), fault_obj,
+					"message", sizeof("message")-1, text_value TSRMLS_CC);
             }
         }
 	}else if(soap_version == AXIOM_SOAP11)
@@ -1387,6 +1397,8 @@ wsf_util_handle_fault_reason(
 		if(text_value)
 		{
 			add_property_string(fault_obj, WSF_FAULT_REASON, text_value, 1);
+			zend_update_property_string(zend_exception_get_default(TSRMLS_C), fault_obj,
+					"message", sizeof("message")-1, text_value TSRMLS_CC);
 		}
 	}
 }
@@ -1541,6 +1553,7 @@ int wsf_util_find_and_set_svc_ctx(
     axis2_svc_grp_ctx_t *svc_grp_ctx = NULL;
     const axis2_char_t *svc_grp_id = NULL;
     svc_grp = axis2_svc_get_parent(svc_info->svc, env);
+	if(svc_grp)
     svc_grp_id = axis2_svc_grp_get_name(svc_grp, env);
     if(svc_grp_id) {
         svc_grp_ctx = axis2_conf_ctx_get_svc_grp_ctx(conf_ctx, env, svc_grp_id);
@@ -1643,6 +1656,7 @@ void wsf_util_process_ws_service_operations(
 
      	    wsf_util_create_op_and_add_to_svc (svc_info, ws_env_svr,
                 op_name_to_store, ht_ops_to_mep TSRMLS_CC);
+     	    efree(function_name);
 		 } 
         zend_hash_move_forward_ex (ht_ops_to_funcs, &pos);
         i++;

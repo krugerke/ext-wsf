@@ -1,4 +1,4 @@
-prgbindir=$(prefix)/bin/samples
+prgbindir=$(prefix)/samples/bin
 prgbin_PROGRAMS = math
 noinst_HEADERS = axis2_math_stub.h
 math_SOURCES = axis2_math_stub.c \
@@ -10,7 +10,6 @@ math_LDADD   =  \
                     -laxis2_axiom \
                     -laxis2_engine \
                     -laxis2_parser \
-                    -lpthread \
                     -laxis2_http_sender \
                     -laxis2_http_receiver \
                     $(GUTHTHILA_LIBS)

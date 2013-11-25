@@ -16,8 +16,6 @@
  */
 
 #include "oxs_key_mgr.h"
-
-
 #include <rampart_context.h>
 #include <rampart_constants.h>
 #include <oxs_axiom.h>
@@ -29,6 +27,7 @@
 #include <rp_issued_token.h>
 #include <rampart_saml_token.h>
 #include <oxs_key_mgr.h>
+#include <axis2_conf_ctx.h>
 
 struct rampart_context_t
 {
@@ -41,6 +40,8 @@ struct rampart_context_t
     password_callback_fn pwcb_function;
     rampart_is_replayed_fn is_replayed_function;
     int ttl;
+    axis2_bool_t need_millisecond_precision;
+    int clock_skew_buffer;
     axis2_char_t *rd_val;
     int ref;
     oxs_key_mgr_t *key_mgr;
@@ -189,6 +190,8 @@ rampart_context_create(const axutil_env_t *env)
     rampart_context->pwcb_function = NULL;
     rampart_context->is_replayed_function = NULL;
     rampart_context->ttl = 300;
+    rampart_context->clock_skew_buffer = 0;
+    rampart_context->need_millisecond_precision = AXIS2_TRUE;
     rampart_context->rd_val = NULL;
     rampart_context->password_type = NULL;
     rampart_context->saml_tokens = NULL;
@@ -358,6 +361,11 @@ rampart_context_free(rampart_context_t *rampart_context,
         {
             oxs_x509_cert_free(rampart_context->receiver_cert, env);
             rampart_context->receiver_cert = NULL;
+        }
+
+        if(rampart_context->key_mgr)
+        {
+            oxs_key_mgr_free(rampart_context->key_mgr, env);
         }
 
         AXIS2_FREE(env->allocator,rampart_context);
@@ -565,6 +573,42 @@ rampart_context_set_ttl(rampart_context_t *rampart_context,
 
     rampart_context->ttl = ttl;
     return AXIS2_SUCCESS;
+}
+
+AXIS2_EXTERN axis2_bool_t AXIS2_CALL
+rampart_context_get_need_millisecond_precision(
+    rampart_context_t *rampart_context,
+    const axutil_env_t *env)
+{
+    return rampart_context->need_millisecond_precision;
+}
+
+AXIS2_EXTERN axis2_status_t AXIS2_CALL
+rampart_context_set_need_millisecond_precision(
+    rampart_context_t *rampart_context,
+    const axutil_env_t *env,
+    axis2_bool_t need_millisecond_precision)
+{
+    rampart_context->need_millisecond_precision = need_millisecond_precision;
+    return AXIS2_SUCCESS;
+}
+
+AXIS2_EXTERN axis2_status_t AXIS2_CALL
+rampart_context_set_clock_skew_buffer(
+    rampart_context_t *rampart_context,
+    const axutil_env_t *env,
+    int skew_buffer)
+{
+    rampart_context->clock_skew_buffer = skew_buffer;
+    return AXIS2_SUCCESS;
+}
+
+AXIS2_EXTERN int AXIS2_CALL
+rampart_context_get_clock_skew_buffer(
+    rampart_context_t *rampart_context,
+    const axutil_env_t *env)
+{
+    return rampart_context->clock_skew_buffer;
 }
 
 AXIS2_EXTERN axis2_status_t AXIS2_CALL
@@ -957,7 +1001,7 @@ rampart_context_get_signature_session_key(rampart_context_t *rampart_context,
     int i = 0;
     int key_usage = OXS_KEY_USAGE_SESSION;
 
-    if(is_different_session_key_for_encryption_and_signing(env, rampart_context))
+    if(rampart_context_is_different_session_key_for_enc_and_sign(env, rampart_context))
         key_usage = OXS_KEY_USAGE_SIGNATURE_SESSION;
 
     /*Repeat thru all the keys and find the matching one*/
@@ -981,7 +1025,7 @@ rampart_context_set_signature_session_key(rampart_context_t *rampart_context,
     if(rampart_context->key_list)
     {
         int key_usage = OXS_KEY_USAGE_SESSION;
-        if(is_different_session_key_for_encryption_and_signing(env, rampart_context))
+        if(rampart_context_is_different_session_key_for_enc_and_sign(env, rampart_context))
             key_usage = OXS_KEY_USAGE_SIGNATURE_SESSION;
 
         oxs_key_set_usage(session_key, env, key_usage);
@@ -2002,10 +2046,49 @@ rampart_context_set_ttl_from_file(
         return AXIS2_FAILURE;
 
     time_to_live = rp_rampart_config_get_time_to_live(config,env);
-    if(!time_to_live)
-        rampart_context->ttl = 300;
-    else
+    if(time_to_live)
         rampart_context->ttl = axutil_atoi(time_to_live);
+
+    return AXIS2_SUCCESS;
+}
+
+AXIS2_EXTERN axis2_status_t AXIS2_CALL
+rampart_context_set_clock_skew_buffer_from_file(
+    rampart_context_t *rampart_context,
+    const axutil_env_t *env)
+{
+    rp_rampart_config_t *config = NULL;
+    axis2_char_t *clock_skew_buffer = NULL;
+    config = rp_secpolicy_get_rampart_config(rampart_context->secpolicy,env);
+    if(!config)
+        return AXIS2_FAILURE;
+
+    clock_skew_buffer = rp_rampart_config_get_clock_skew_buffer(config,env);
+    if(clock_skew_buffer)
+        rampart_context->clock_skew_buffer = axutil_atoi(clock_skew_buffer);
+
+    return AXIS2_SUCCESS;
+}
+
+AXIS2_EXTERN axis2_status_t AXIS2_CALL
+rampart_context_set_need_millisecond_precision_from_file(
+    rampart_context_t *rampart_context,
+    const axutil_env_t *env)
+{
+    rp_rampart_config_t *config = NULL;
+    axis2_char_t *need_millisecond = NULL;
+    config = rp_secpolicy_get_rampart_config(rampart_context->secpolicy,env);
+    if(!config)
+        return AXIS2_FAILURE;
+
+    need_millisecond = rp_rampart_config_get_need_millisecond_precision(config,env);
+    if(need_millisecond)
+    {
+        if(!axutil_strcasecmp(need_millisecond, "TRUE"))
+            rampart_context->need_millisecond_precision = AXIS2_TRUE;
+        else
+            rampart_context->need_millisecond_precision = AXIS2_FALSE;
+    }
 
     return AXIS2_SUCCESS;
 }
@@ -2089,8 +2172,47 @@ rampart_context_get_nodes_to_sign(
     axiom_soap_envelope_t *soap_envelope,
     axutil_array_list_t *nodes_to_sign)
 {
+    rp_header_t *header = NULL;
+    axis2_status_t status = AXIS2_FAILURE;
 
-    return rampart_context_get_nodes_to_protect(rampart_context,env,soap_envelope,nodes_to_sign,AXIS2_TRUE);
+    status = rampart_context_get_nodes_to_protect(rampart_context, env, soap_envelope,
+        nodes_to_sign, AXIS2_TRUE);
+    if(status != AXIS2_SUCCESS)
+    {
+        return AXIS2_FAILURE;
+    }
+
+    header = rp_header_create(env);
+    rp_header_set_name(header, env, RAMPART_SECURITY_TIMESTAMP);
+    rp_header_set_namespace(header, env, RAMPART_WSU_XMLNS);
+    status = rampart_context_set_nodes_to_encrypt_or_sign(header, env, soap_envelope, nodes_to_sign);
+    rp_header_free(header, env);
+    if(status != AXIS2_SUCCESS)
+    {
+        return AXIS2_FAILURE;
+    }
+
+    header = rp_header_create(env);
+    rp_header_set_name(header, env, RAMPART_SECURITY_USERNAMETOKEN);
+    rp_header_set_namespace(header, env, RAMPART_WSSE_XMLNS);
+    status = rampart_context_set_nodes_to_encrypt_or_sign(header, env, soap_envelope, nodes_to_sign);
+    rp_header_free(header, env);
+    if(status != AXIS2_SUCCESS)
+    {
+        return AXIS2_FAILURE;
+    }
+
+    header = rp_header_create(env);
+    rp_header_set_name(header, env, OXS_NODE_SIGNATURE_CONFIRMATION);
+    rp_header_set_namespace(header, env, RAMPART_WSSE_XMLNS);
+    status = rampart_context_set_nodes_to_encrypt_or_sign(header, env, soap_envelope, nodes_to_sign);
+    rp_header_free(header, env);
+    if(status != AXIS2_SUCCESS)
+    {
+        return AXIS2_FAILURE;
+    }
+
+    return AXIS2_SUCCESS;
 }
 
 AXIS2_EXTERN axis2_status_t AXIS2_CALL
@@ -2168,19 +2290,23 @@ rampart_context_get_nodes_to_protect(
     {
         axiom_soap_body_t *body = NULL;
         axiom_node_t *body_node = NULL;
-        axiom_node_t *body_child_node = NULL;
 
-        AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[rampart][rampart_context] Including the body for encryption/sign.");
+        AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "Including the body for encryption/sign.");
         body = axiom_soap_envelope_get_body(soap_envelope, env);
         body_node = axiom_soap_body_get_base_node(body, env);
-        body_child_node = axiom_node_get_first_element(body_node, env);
+
         if(is_sign)
         {
             axutil_array_list_add(nodes_to_sign_or_encrypt, env, body_node);
         }
         else
         {
-            axutil_array_list_add(nodes_to_sign_or_encrypt, env, body_child_node);
+            axiom_node_t *body_child_node = NULL;
+            body_child_node = axiom_node_get_first_element(body_node, env);
+            if(body_child_node)
+            {
+                axutil_array_list_add(nodes_to_sign_or_encrypt, env, body_child_node);
+            }
         }
 
         return AXIS2_SUCCESS;
@@ -2557,6 +2683,22 @@ rampart_context_get_asym_sig_algo(
     if(algosuite)
     {
         return rp_algorithmsuite_get_asymmetric_signature(algosuite,env);
+    }
+    else
+        return NULL;
+}
+
+AXIS2_EXTERN axis2_char_t *AXIS2_CALL
+rampart_context_get_sym_sig_algo(
+    rampart_context_t *rampart_context,
+    const axutil_env_t *env)
+{
+    rp_algorithmsuite_t *algosuite = NULL;
+
+    algosuite = rampart_context_get_algorithmsuite(rampart_context, env);
+    if(algosuite)
+    {
+        return rp_algorithmsuite_get_symmetric_signature(algosuite, env);
     }
     else
         return NULL;
@@ -3347,6 +3489,39 @@ rampart_context_get_validate_security_context_token_fn(
     return rampart_context->validate_sct_function;
 }
 
+AXIS2_EXTERN axis2_bool_t AXIS2_CALL
+rampart_context_is_different_session_key_for_enc_and_sign(
+    const axutil_env_t *env,
+    rampart_context_t *rampart_context)
+{
+    rp_property_t *binding = NULL;
+    axis2_bool_t use_different_key = AXIS2_FALSE;
 
+    if(rampart_context)
+    {
+        binding = rp_secpolicy_get_binding(rampart_context_get_secpolicy(rampart_context, env),env);
+        if(binding)
+        {
+            if(rp_property_get_type(binding,env) == RP_PROPERTY_SYMMETRIC_BINDING)
+            {
+                rp_symmetric_binding_t *sym_binding = NULL;
+                rp_property_t *token = NULL;
+                sym_binding = (rp_symmetric_binding_t *)rp_property_get_value(binding,env);
+                if(sym_binding)
+                {
+                    /* check protection tokens have being specified. If not (means encryption token 
+                       and signature token is specified), use different session key for 
+                       encryption and signature 
+                    */
+                    token = rp_symmetric_binding_get_protection_token(sym_binding,env);
+                    if(!token)
+                        use_different_key = AXIS2_TRUE;
+                }
+            }
+        }
+    }
+
+    return use_different_key;
+}
 
 

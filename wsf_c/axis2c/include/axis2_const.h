@@ -211,6 +211,8 @@ extern "C"
 
 #define AXIS2_MODULE_ADDRESSING "addressing"
 
+#define AXIS2_USE_SEPARATE_LISTENER "use_listener"
+
 #define AXIS2_USER_NAME "userName"
 #define AXIS2_PASSWORD "password"
 
@@ -239,12 +241,16 @@ extern "C"
      */
 #define AXIS2_MEP_URI_IN_ONLY "http://www.w3.org/2004/08/wsdl/in-only"
 
+#define AXIS2_MEP_URI_IN_ONLY_WSDL2 "http://www.w3.org/ns/wsdl/in-only"
+
 #define AXIS2_MEP_CONSTANT_IN_ONLY 10
 
     /**
      * Field MEP_URI_ROBUST_IN_ONLY
      */
 #define AXIS2_MEP_URI_ROBUST_IN_ONLY "http://www.w3.org/2004/08/wsdl/robust-in-only"
+#define AXIS2_MEP_URI_ROBUST_IN_ONLY_WSDL2 "http://www.w3.org/ns/wsdl/robust-in-only"
+
 
 #define AXIS2_MEP_CONSTANT_ROBUST_IN_ONLY 11
 
@@ -253,12 +259,16 @@ extern "C"
      */
 #define AXIS2_MEP_URI_IN_OUT "http://www.w3.org/2004/08/wsdl/in-out"
 
+#define AXIS2_MEP_URI_IN_OUT_WSDL2 "http://www.w3.org/ns/wsdl/in-out"
+
 #define AXIS2_MEP_CONSTANT_IN_OUT 12
 
     /**
      * Field MEP_URI_IN_OPTIONAL_OUT
      */
 #define AXIS2_MEP_URI_IN_OPTIONAL_OUT "http://www.w3.org/2004/08/wsdl/in-opt-out"
+
+#define AXIS2_MEP_URI_IN_OPTIONAL_OUT_WSDL2 "http://www.w3.org/ns/wsdl/in-opt-out"
 
 #define AXIS2_MEP_CONSTANT_IN_OPTIONAL_OUT 13
 
@@ -267,12 +277,16 @@ extern "C"
      */
 #define AXIS2_MEP_URI_OUT_ONLY "http://www.w3.org/2004/08/wsdl/out-only"
 
+#define AXIS2_MEP_URI_OUT_ONLY_WSDL2 "http://www.w3.org/ns/wsdl/out-only"
+
 #define AXIS2_MEP_CONSTANT_OUT_ONLY 14
 
     /**
      * Field MEP_URI_ROBUST_OUT_ONLY
      */
 #define AXIS2_MEP_URI_ROBUST_OUT_ONLY "http://www.w3.org/2004/08/wsdl/robust-out-only"
+
+#define AXIS2_MEP_URI_ROBUST_OUT_ONLY_WSDL2 "http://www.w3.org/ns/wsdl/robust-out-only"
 
 #define AXIS2_MEP_CONSTANT_ROBUST_OUT_ONLY 15
 
@@ -281,12 +295,16 @@ extern "C"
      */
 #define AXIS2_MEP_URI_OUT_IN "http://www.w3.org/2004/08/wsdl/out-in"
 
+#define AXIS2_MEP_URI_OUT_IN_WSDL2 "http://www.w3.org/ns/wsdl/out-in"
+
 #define AXIS2_MEP_CONSTANT_OUT_IN 16
 
     /**
      * Field MEP_URI_OUT_OPTIONL_IN
      */
 #define AXIS2_MEP_URI_OUT_OPTIONAL_IN "http://www.w3.org/2004/08/wsdl/out-opt-in"
+
+#define AXIS2_MEP_URI_OUT_OPTIONAL_IN_WSDL2 "http://www.w3.org/ns/wsdl/out-opt-in"
 
 #define AXIS2_MEP_CONSTANT_OUT_OPTIONAL_IN 17
 
@@ -357,6 +375,9 @@ extern "C"
 #define AXIS2_ATTACHMENT_DIR "attachmentDIR"
 #define AXIS2_MTOM_BUFFER_SIZE "MTOMBufferSize"
 #define AXIS2_MTOM_MAX_BUFFERS "MTOMMaxBuffers"
+#define AXIS2_MTOM_CACHING_CALLBACK "MTOMCachingCallback"
+#define AXIS2_MTOM_SENDING_CALLBACK "MTOMSendingCallback"
+#define AXIS2_ENABLE_MTOM_SERVICE_CALLBACK "EnableMTOMServiceCallback"
 
     /* op_ctx persistance */
 #define AXIS2_PERSIST_OP_CTX "persistOperationContext"
@@ -397,6 +418,26 @@ extern "C"
 #define AXIS2_MODULE_DIR "moduleDir"
 
 #define AXIS2_MESSAGE_ID_PREFIX "urn:uuid:"
+
+/** Name of anonymous service */
+#define AXIS2_ANON_SERVICE  "__ANONYMOUS_SERVICE__"
+
+/** out-only MEP operation name */
+#define AXIS2_ANON_OUT_ONLY_OP "__OPERATION_OUT_ONLY__"
+
+/** out-only robust MEP operation name */
+#define AXIS2_ANON_ROBUST_OUT_ONLY_OP "__OPERATION_ROBUST_OUT_ONLY__"
+
+/** out-in MEP operation name */
+#define AXIS2_ANON_OUT_IN_OP "__OPERATION_OUT_IN__"
+
+/** wsdl location in repo*/
+#define AXIS2_WSDL_LOCATION_IN_REPO "woden"
+
+#define AXIS2_SVC_CLIENT_CLOSED "closed"    
+
+#define AXIS2_STATISTICS_COUNT_ARG "stat_count_arg"    
+
 #ifdef __cplusplus
 }
 #endif

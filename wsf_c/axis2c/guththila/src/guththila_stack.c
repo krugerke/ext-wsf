@@ -1,4 +1,3 @@
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -14,19 +13,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */  
+ */
 #include <guththila_stack.h>
 
 int GUTHTHILA_CALL
 guththila_stack_init(
     guththila_stack_t * stack,
-    const axutil_env_t * env) 
+    const axutil_env_t * env)
 {
     stack->top = 0;
-    stack->data =
-        (void **) AXIS2_MALLOC(env->allocator,
-                               sizeof(void **) * GUTHTHILA_STACK_DEFAULT);
-    if (!stack->data)
+    stack->data = (void **)AXIS2_MALLOC(env->allocator, sizeof(void **) * GUTHTHILA_STACK_DEFAULT);
+    if(!stack->data)
     {
         return GUTHTHILA_FAILURE;
     }
@@ -40,9 +37,9 @@ guththila_stack_init(
 void GUTHTHILA_CALL
 guththila_stack_free(
     guththila_stack_t * stack,
-    const axutil_env_t * env) 
+    const axutil_env_t * env)
 {
-    if (stack->data)
+    if(stack->data)
         AXIS2_FREE(env->allocator, stack->data);
     AXIS2_FREE(env->allocator, stack);
 }
@@ -50,20 +47,20 @@ guththila_stack_free(
 void GUTHTHILA_CALL
 guththila_stack_un_init(
     guththila_stack_t * stack,
-    const axutil_env_t * env) 
+    const axutil_env_t * env)
 {
-    if (stack->data)
+    if(stack->data)
         AXIS2_FREE(env->allocator, stack->data);
 }
 
 void *GUTHTHILA_CALL
 guththila_stack_pop(
     guththila_stack_t * stack,
-    const axutil_env_t * env) 
+    const axutil_env_t * env)
 {
-    if (stack->top > 0)
-    {                
-        return stack->data[stack->top-- - 1];        
+    if(stack->top > 0)
+    {
+        return stack->data[--(stack->top)];
     }
     return NULL;
 }
@@ -72,36 +69,31 @@ int GUTHTHILA_CALL
 guththila_stack_push(
     guththila_stack_t * stack,
     void *data,
-    const axutil_env_t * env) 
+    const axutil_env_t * env)
 {
-    int i = 0;
-    void **temp = NULL;
-    if (stack->top >= stack->max)
+    int top = stack->top++;
+    if(top >= stack->max)
     {
-        
-            temp =
-            (void **) AXIS2_MALLOC(env->allocator,
-                                   sizeof(void **) * (stack->max +=
-                                                      GUTHTHILA_STACK_DEFAULT));
-        for (i = 0; i < stack->top; i++)
+        void **temp = NULL;
+        int i = 0;
+        temp = (void **)AXIS2_MALLOC(env->allocator, sizeof(void **) * (stack->max *= 2));
+        for(i = 0; i < top; ++i)
         {
             temp[i] = stack->data[i];
         }
         AXIS2_FREE(env->allocator, stack->data);
         stack->data = temp;
-        if (!stack->data)
-            return GUTHTHILA_FAILURE;
     }
-    stack->data[stack->top] = data;
-    return stack->top++;
+    stack->data[top] = data;
+    return top;
 }
 
 void *GUTHTHILA_CALL
 guththila_stack_peek(
     guththila_stack_t * stack,
-    const axutil_env_t * env) 
+    const axutil_env_t * env)
 {
-    if (stack->top > 0)
+    if(stack->top > 0)
     {
         return stack->data[stack->top - 1];
     }
@@ -114,9 +106,9 @@ guththila_stack_peek(
 int GUTHTHILA_CALL
 guththila_stack_del_top(
     guththila_stack_t * stack,
-    const axutil_env_t * env) 
+    const axutil_env_t * env)
 {
-    if (stack->top > 0)
+    if(stack->top > 0)
     {
         AXIS2_FREE(env->allocator, stack->data[stack->top]);
         return GUTHTHILA_SUCCESS;
@@ -127,7 +119,7 @@ guththila_stack_del_top(
 int GUTHTHILA_CALL
 guththila_stack_is_empty(
     guththila_stack_t * stack,
-    const axutil_env_t * env) 
+    const axutil_env_t * env)
 {
     return stack->top == 0 ? 1 : 0;
 }
@@ -136,20 +128,8 @@ void *GUTHTHILA_CALL
 guththila_stack_get_by_index(
     guththila_stack_t * stack,
     int index,
-    const axutil_env_t * env) 
+    const axutil_env_t * env)
 {
     return index < stack->top ? stack->data[index] : NULL;
 }
-
-
-
-
-
-
-
-
-
-
-
-
 

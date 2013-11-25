@@ -1,4 +1,3 @@
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -35,44 +34,46 @@ axiom_comment_create(
     axiom_node_t ** node)
 {
     axiom_comment_t *comment = NULL;
-    AXIS2_ENV_CHECK(env, NULL);
     AXIS2_PARAM_CHECK(env->error, value, NULL);
     AXIS2_PARAM_CHECK(env->error, node, NULL);
-    *node = NULL;
     *node = axiom_node_create(env);
-    if (!*node)
+    if(!*node)
     {
         AXIS2_ERROR_SET(env->error, AXIS2_ERROR_NO_MEMORY, AXIS2_FAILURE);
+        AXIS2_LOG_ERROR(env->log, AXIS2_LOG_SI, "Unable to create node needed by om comment");
         return NULL;
     }
 
-    comment = (axiom_comment_t *) AXIS2_MALLOC(env->allocator,
-                                               sizeof(axiom_comment_t));
-    if (!comment)
+    comment = (axiom_comment_t *)AXIS2_MALLOC(env->allocator, sizeof(axiom_comment_t));
+    if(!comment)
     {
         AXIS2_FREE(env->allocator, (*node));
         AXIS2_ERROR_SET(env->error, AXIS2_ERROR_NO_MEMORY, AXIS2_FAILURE);
+        AXIS2_LOG_ERROR(env->log, AXIS2_LOG_SI, "Insufficient memory to create om comment");
         return NULL;
     }
 
-    comment->value = NULL;
-
-    if (value)
+    if(value)
     {
-        comment->value = (axis2_char_t *) axutil_strdup(env, value);
-        if (!comment->value)
+        comment->value = (axis2_char_t *)axutil_strdup(env, value);
+        if(!comment->value)
         {
             AXIS2_FREE(env->allocator, comment);
-            AXIS2_FREE(env->allocator, (*node));
+            axiom_node_free_tree(*node, env);
             AXIS2_ERROR_SET(env->error, AXIS2_ERROR_NO_MEMORY, AXIS2_FAILURE);
+            AXIS2_LOG_ERROR(env->log, AXIS2_LOG_SI, "Insufficient memory to create comment value");
             return NULL;
         }
+    }
+    else
+    {
+        comment->value = NULL;
     }
 
     axiom_node_set_data_element((*node), env, comment);
     axiom_node_set_node_type((*node), env, AXIOM_COMMENT);
 
-    if (parent)
+    if(parent)
     {
         axiom_node_add_child(parent, env, (*node));
     }
@@ -85,14 +86,11 @@ axiom_comment_free(
     axiom_comment_t * comment,
     const axutil_env_t * env)
 {
-    AXIS2_ENV_CHECK(env, AXIS2_FAILURE);
-
-    if (comment->value)
+    if(comment->value)
     {
         AXIS2_FREE(env->allocator, comment->value);
     }
     AXIS2_FREE(env->allocator, comment);
-    return;
 }
 
 AXIS2_EXTERN axis2_char_t *AXIS2_CALL
@@ -100,7 +98,6 @@ axiom_comment_get_value(
     axiom_comment_t * comment,
     const axutil_env_t * env)
 {
-    AXIS2_ENV_CHECK(env, NULL);
     return comment->value;
 }
 
@@ -110,16 +107,15 @@ axiom_comment_set_value(
     const axutil_env_t * env,
     const axis2_char_t * value)
 {
-    AXIS2_ENV_CHECK(env, AXIS2_FAILURE);
     AXIS2_PARAM_CHECK(env->error, value, AXIS2_FAILURE);
-    if (comment->value)
+    if(comment->value)
     {
         AXIS2_FREE(env->allocator, comment->value);
     }
 
-    comment->value = (axis2_char_t *) axutil_strdup(env, value);
+    comment->value = (axis2_char_t *)axutil_strdup(env, value);
 
-    if (!comment->value)
+    if(!comment->value)
     {
         return AXIS2_FAILURE;
     }
@@ -133,13 +129,11 @@ axiom_comment_serialize(
     const axutil_env_t * env,
     axiom_output_t * om_output)
 {
-    AXIS2_ENV_CHECK(env, AXIS2_FAILURE);
     AXIS2_PARAM_CHECK(env->error, om_output, AXIS2_FAILURE);
 
-    if (comment->value)
+    if(comment->value)
     {
-        return axiom_output_write(om_output, env,
-                                  AXIOM_COMMENT, 1, comment->value);
+        return axiom_output_write(om_output, env, AXIOM_COMMENT, 1, comment->value);
     }
     return AXIS2_FAILURE;
 }

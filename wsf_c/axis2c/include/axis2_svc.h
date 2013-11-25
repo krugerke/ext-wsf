@@ -127,6 +127,19 @@ extern "C"
         const axis2_char_t * http_method,
         const axis2_char_t * http_location);
 
+
+    /**
+     * Gets the RESTful operation map for a given service 
+     * @param svc pointer to service struct
+     * @param env pointer to environment struct
+     * @return pointer to hash with the information 
+     * (method, url)=> processing structure for each ops
+     */
+    AXIS2_EXTERN axutil_hash_t *AXIS2_CALL
+    axis2_svc_get_rest_map(
+        const axis2_svc_t * svc,
+        const axutil_env_t * env);
+
     /**
      * Gets operation corresponding to the name.
      * @param svc pointer to service struct
@@ -226,6 +239,18 @@ extern "C"
         const axis2_svc_t * svc,
         const axutil_env_t * env,
         const axis2_char_t * name);
+
+	/**
+	 * Remove a parameter.
+	 * @param svc pointer to service struct
+	 * @param env pointer to the environment
+	 * @Param param_name parameter name to be removed
+	 */
+	AXIS2_EXTERN axis2_status_t AXIS2_CALL
+	axis2_svc_remove_param(
+		const axis2_svc_t *svc,
+		const axutil_env_t *env,
+		const axis2_char_t *param_name);
 
     /**
      * Gets all parameters stored within service.
@@ -1195,6 +1220,15 @@ extern "C"
         const axis2_svc_t * svc,
         const axutil_env_t * env);
 
+	/* Get the mutex associated with this service 
+	 * @param svc pointer to message
+     * @param env pointer to environment struct
+     * @return pointer to a axutil_thread_mutext_t
+     */
+	AXIS2_EXTERN axutil_thread_mutex_t * AXIS2_CALL
+	axis2_svc_get_mutex(
+		const axis2_svc_t * svc,
+		const axutil_env_t * env);
     /** @} */
 #ifdef __cplusplus
 }

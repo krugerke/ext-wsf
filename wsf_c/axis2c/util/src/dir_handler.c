@@ -1,4 +1,3 @@
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -35,12 +34,12 @@ extern int AXIS2_ALPHASORT(
 int dir_select(
     struct dirent *entry);
 int file_select(
-    const struct dirent *entry);
+    struct dirent *entry);
 #else
 int dir_select(
     const struct dirent *entry);
 int file_select(
-    const struct dirent *entry); 
+    const struct dirent *entry);
 #endif
 
 /**
@@ -59,7 +58,7 @@ axutil_dir_handler_list_services_or_modules_in_dir(
     int i = 0;
     struct dirent **files = NULL;
     /*int file_select(
-        );*/
+     );*/
     /* Removed un-wanted redefinition leading to warnings on
      * Windows. If this is the desired behaviour, please look
      * into the file_select function definition below and comment
@@ -71,15 +70,14 @@ axutil_dir_handler_list_services_or_modules_in_dir(
     file_list = axutil_array_list_create(env, 100);
     count = AXIS2_SCANDIR(pathname, &files, file_select, AXIS2_ALPHASORT);
     /* If no files found, make a non-selectable menu item */
-    if (count <= 0)
+    if(count <= 0)
     {
         axutil_array_list_free(file_list, env);
-        AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "No files in the path %s.",
-            pathname);
+        AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "No files in the path %s.", pathname);
         return NULL;
     }
 
-    for (i = 1; i < (count + 1); ++i)
+    for(i = 1; i < (count + 1); ++i)
     {
         axis2_char_t *fname = NULL;
         axutil_file_t *arch_file = NULL;
@@ -87,15 +85,15 @@ axutil_dir_handler_list_services_or_modules_in_dir(
         axis2_char_t *temp_path = NULL;
 
         fname = files[i - 1]->d_name;
-        arch_file = (axutil_file_t *) axutil_file_create(env);
-        if (!arch_file)
+        arch_file = (axutil_file_t *)axutil_file_create(env);
+        if(!arch_file)
         {
             int size = 0;
             int j = 0;
             axutil_file_t *del_file = NULL;
 
             size = axutil_array_list_size(file_list, env);
-            for (j = 0; j < size; j++)
+            for(j = 0; j < size; j++)
             {
                 del_file = axutil_array_list_get(file_list, env, j);
                 axutil_file_free(del_file, env);
@@ -108,7 +106,7 @@ axutil_dir_handler_list_services_or_modules_in_dir(
         temp_path = axutil_stracat(env, pathname, AXIS2_PATH_SEP_STR);
         path = axutil_stracat(env, temp_path, fname);
         AXIS2_FREE(env->allocator, temp_path);
-        if (!path)
+        if(!path)
         {
             int size = 0;
             int j = 0;
@@ -116,7 +114,7 @@ axutil_dir_handler_list_services_or_modules_in_dir(
 
             axutil_file_free(arch_file, env);
             size = axutil_array_list_size(file_list, env);
-            for (j = 0; j < size; j++)
+            for(j = 0; j < size; j++)
             {
                 del_file = axutil_array_list_get(file_list, env, j);
                 axutil_file_free(del_file, env);
@@ -127,7 +125,7 @@ axutil_dir_handler_list_services_or_modules_in_dir(
         }
         axutil_file_set_path(arch_file, env, path);
         buf = AXIS2_MALLOC(env->allocator, sizeof(struct stat));
-        if (!buf)
+        if(!buf)
         {
             int size = 0;
             int j = 0;
@@ -136,7 +134,7 @@ axutil_dir_handler_list_services_or_modules_in_dir(
             AXIS2_FREE(env->allocator, path);
             axutil_file_free(arch_file, env);
             size = axutil_array_list_size(file_list, env);
-            for (j = 0; j < size; j++)
+            for(j = 0; j < size; j++)
             {
                 del_file = axutil_array_list_get(file_list, env, j);
                 axutil_file_free(del_file, env);
@@ -146,9 +144,9 @@ axutil_dir_handler_list_services_or_modules_in_dir(
             return NULL;
         }
         stat(path, buf);
-        axutil_file_set_timestamp(arch_file, env, (time_t) buf->st_ctime);
+        axutil_file_set_timestamp(arch_file, env, (time_t)buf->st_ctime);
         status = axutil_array_list_add(file_list, env, arch_file);
-        if (AXIS2_SUCCESS != status)
+        if(AXIS2_SUCCESS != status)
         {
             int size = 0;
             int j = 0;
@@ -158,7 +156,7 @@ axutil_dir_handler_list_services_or_modules_in_dir(
             AXIS2_FREE(env->allocator, path);
             AXIS2_FREE(env->allocator, buf);
             size = axutil_array_list_size(file_list, env);
-            for (j = 0; j < size; j++)
+            for(j = 0; j < size; j++)
             {
                 del_file = axutil_array_list_get(file_list, env, j);
                 axutil_file_free(del_file, env);
@@ -190,37 +188,62 @@ axutil_dir_handler_list_service_or_module_dirs(
     int i = 0;
     struct dirent **files = NULL;
     char cwd[500];
+    int chdir_result = 0;
 
     /**FIXME:
-     * This magic number 500 was selected as a temperary solution. It has to be
-     * replaced with dinamic memory allocation. This will be done once the use of
+     * This magic number 500 was selected as a temporary solution. It has to be
+     * replaced with dynamic memory allocation. This will be done once the use of
      * errno after getwcd() on Windows is figured out.
      */
 
     axis2_status_t status = AXIS2_FAILURE;
-    AXIS2_ENV_CHECK(env, NULL);
-    file_list = axutil_array_list_create(env, 0);
-    if (!AXIS2_GETCWD(cwd, 500))
+
+    if(!AXIS2_GETCWD(cwd, 500))
+    {
+        /* if we can't identify working directory, it will be a critical failure */
+        AXIS2_LOG_ERROR(env->log, AXIS2_LOG_SI, "Cannot identify working directory");
         exit(1);
+    }
 
     /* pathname is path of services directory or modules directory. */
-    AXIS2_CHDIR(pathname);
+    chdir_result = AXIS2_CHDIR(pathname);
+    if(chdir_result == -1)
+    {
+        /* we could not be able to find the path given. However, this will not be a problem
+         * because services and modules are optional.
+         */
+        AXIS2_LOG_INFO(env->log, "Cannot find path %s.", pathname);
+        return NULL;
+    }
 #ifdef AXIS2_ARCHIVE_ENABLED
     axis2_archive_extract();
 #endif
 
     count = AXIS2_SCANDIR(pathname, &files, dir_select, AXIS2_ALPHASORT);
-    AXIS2_CHDIR(cwd);
+    chdir_result = AXIS2_CHDIR(cwd);
+    if(chdir_result == -1)
+    {
+        /* we are changing back to working directory. If we can't change, this will be critical*/
+        AXIS2_LOG_ERROR(env->log, AXIS2_LOG_SI, "Cannot change directory to working directory");
+        exit(1);
+    }
 
     /* If no files found, make a non-selectable menu item */
-    if (count <= 0)
+    if(count <= 0)
     {
-        axutil_array_list_free(file_list, env);
         AXIS2_LOG_INFO(env->log, "No files in the path %s.", pathname);
         return NULL;
     }
 
-    for (i = 1; i < (count + 1); ++i)
+    file_list = axutil_array_list_create(env, 0);
+    if(!file_list)
+    {
+        AXIS2_LOG_ERROR(env->log, AXIS2_LOG_SI, "Cannot create file list.");
+        AXIS2_ERROR_SET(env->error, AXIS2_ERROR_NO_MEMORY, AXIS2_FAILURE);
+        return NULL;
+    }
+
+    for(i = 1; i < (count + 1); ++i)
     {
         axis2_char_t *fname = NULL;
         axutil_file_t *arch_file = NULL;
@@ -228,15 +251,15 @@ axutil_dir_handler_list_service_or_module_dirs(
         axis2_char_t *temp_path = NULL;
 
         fname = files[i - 1]->d_name;
-        arch_file = (axutil_file_t *) axutil_file_create(env);
-        if (!arch_file)
+        arch_file = (axutil_file_t *)axutil_file_create(env);
+        if(!arch_file)
         {
             int size = 0;
             int j = 0;
             axutil_file_t *del_file = NULL;
 
             size = axutil_array_list_size(file_list, env);
-            for (j = 0; j < size; j++)
+            for(j = 0; j < size; j++)
             {
                 del_file = axutil_array_list_get(file_list, env, j);
                 axutil_file_free(del_file, env);
@@ -248,7 +271,7 @@ axutil_dir_handler_list_service_or_module_dirs(
         axutil_file_set_name(arch_file, env, fname);
         temp_path = axutil_stracat(env, pathname, AXIS2_PATH_SEP_STR);
         path = axutil_stracat(env, temp_path, fname);
-        if (!path)
+        if(!path)
         {
             int size = 0;
             int j = 0;
@@ -256,7 +279,7 @@ axutil_dir_handler_list_service_or_module_dirs(
 
             axutil_file_free(arch_file, env);
             size = axutil_array_list_size(file_list, env);
-            for (j = 0; j < size; j++)
+            for(j = 0; j < size; j++)
             {
                 del_file = axutil_array_list_get(file_list, env, j);
                 axutil_file_free(del_file, env);
@@ -268,7 +291,7 @@ axutil_dir_handler_list_service_or_module_dirs(
         axutil_file_set_path(arch_file, env, path);
         AXIS2_FREE(env->allocator, temp_path);
         buf = AXIS2_MALLOC(env->allocator, sizeof(struct stat));
-        if (!buf)
+        if(!buf)
         {
             int size = 0;
             int j = 0;
@@ -277,7 +300,7 @@ axutil_dir_handler_list_service_or_module_dirs(
             axutil_file_free(arch_file, env);
             AXIS2_FREE(env->allocator, path);
             size = axutil_array_list_size(file_list, env);
-            for (j = 0; j < size; j++)
+            for(j = 0; j < size; j++)
             {
                 del_file = axutil_array_list_get(file_list, env, j);
                 axutil_file_free(del_file, env);
@@ -287,9 +310,9 @@ axutil_dir_handler_list_service_or_module_dirs(
             return NULL;
         }
         stat(path, buf);
-        axutil_file_set_timestamp(arch_file, env, (time_t) buf->st_ctime);
+        axutil_file_set_timestamp(arch_file, env, (time_t)buf->st_ctime);
         status = axutil_array_list_add(file_list, env, arch_file);
-        if (AXIS2_SUCCESS != status)
+        if(AXIS2_SUCCESS != status)
         {
             int size = 0;
             int j = 0;
@@ -299,7 +322,7 @@ axutil_dir_handler_list_service_or_module_dirs(
             AXIS2_FREE(env->allocator, path);
             AXIS2_FREE(env->allocator, buf);
             size = axutil_array_list_size(file_list, env);
-            for (j = 0; j < size; j++)
+            for(j = 0; j < size; j++)
             {
                 del_file = axutil_array_list_get(file_list, env, j);
                 axutil_file_free(del_file, env);
@@ -311,7 +334,7 @@ axutil_dir_handler_list_service_or_module_dirs(
         AXIS2_FREE(env->allocator, buf);
     }
 
-    for (i = 0; i < count; i++)
+    for(i = 0; i < count; i++)
     {
         free(files[i]);
     }
@@ -319,32 +342,28 @@ axutil_dir_handler_list_service_or_module_dirs(
     return file_list;
 }
 
-
-int
-file_select(
-    const struct dirent *entry)
+#ifdef IS_MACOSX
+    int file_select(struct dirent *entry)
 {
-
-	#ifdef IS_MACOSX
-		int	file_select(const struct dirent *entry);
-	#else
- 		int file_select(const struct dirent *entry);
-	#endif 
+#else
+	int file_select(const struct dirent *entry)
+{
+#endif
     /** FIXME:
-      * This block of code has been sitting here doing nothing.
-      * I have made the existing logic use this code portion.
-      * Have no idea about the side-effects of this modification.
-      * If this code block is not required, we might as well remove
-      * it.
-      */
+     * This block of code has been sitting here doing nothing.
+     * I have made the existing logic use this code portion.
+     * Have no idea about the side-effects of this modification.
+     * If this code block is not required, we might as well remove
+     * it.
+     */
     axis2_char_t *ptr;
 
-    if ((strcmp(entry->d_name, ".") == 0) || (strcmp(entry->d_name, "..") == 0))
+    if((strcmp(entry->d_name, ".") == 0) || (strcmp(entry->d_name, "..") == 0))
         return (AXIS2_FALSE);
 
     /* Check for filename extensions */
     ptr = axutil_rindex(entry->d_name, '.');
-    if ((ptr) && ((strcmp(ptr, AXIS2_LIB_SUFFIX) == 0)))
+    if((ptr) && ((strcmp(ptr, AXIS2_LIB_SUFFIX) == 0)))
     {
         return (AXIS2_TRUE);
     }
@@ -364,10 +383,10 @@ dir_select(
 {
     struct stat stat_p;
 
-    if (-1 == stat(entry->d_name, &stat_p))
+    if(-1 == stat(entry->d_name, &stat_p))
         return (AXIS2_FALSE);
 
-    if ((entry->d_name[0] == '.') || (!S_ISDIR(stat_p.st_mode)))
+    if((entry->d_name[0] == '.') || (!S_ISDIR(stat_p.st_mode)))
     {
         return (AXIS2_FALSE);
     }

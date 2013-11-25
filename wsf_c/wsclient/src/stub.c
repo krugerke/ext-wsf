@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "util.h"
 #include <axutil_utils.h>
 #include <axutil_types.h>
 #include <axiom_soap.h>
@@ -36,9 +37,10 @@
 #include "rampart_constants.h"
 #endif
 #include <neethi_options.h>
+#include <neethi_util.h>
+#include <neethi_policy.h>
 
 #include "constants.h"
-#include "util.h"
 #include "option.h"
 #include "stub.h"
 #include "error.h"
@@ -80,6 +82,7 @@ static axis2_bool_t enable_rampart;
 static axis2_bool_t enable_signature;
 static axis2_bool_t enable_encryption;
 static neethi_options_t *neethi_options;
+static axis2_char_t *policy_file;
 
 extern wsclient_cmd_options_t cmd_options_data[];
 extern int array_size;
@@ -100,6 +103,65 @@ create_initiator_token(const axutil_env_t *env,
 axiom_node_t *
 create_username_token(const axutil_env_t *env,
                       axiom_node_t *parent_node);
+
+
+void* wsclient_sct = NULL;
+AXIS2_EXTERN void* AXIS2_CALL
+wsclient_obtain_sct_default(
+    const axutil_env_t *env, 
+    axis2_bool_t is_encryption, 
+    axis2_msg_ctx_t* msg_ctx, 
+    axis2_char_t *sct_id, 
+    int sct_id_type,
+    void* user_params)
+{
+    
+    return wsclient_sct;
+}
+
+AXIS2_EXTERN axis2_status_t AXIS2_CALL
+wsclient_store_sct_default(
+    const axutil_env_t *env, 
+    axis2_msg_ctx_t* msg_ctx, 
+    axis2_char_t *sct_global_id, 
+    axis2_char_t *sct_local_id, 
+    void *sct, 
+    void *user_params)
+{
+	wsclient_sct = sct;
+	return AXIS2_SUCCESS;
+
+}
+
+AXIS2_EXTERN axis2_status_t AXIS2_CALL
+wsclient_delete_sct_default(
+    const axutil_env_t *env, 
+    axis2_msg_ctx_t* msg_ctx, 
+    axis2_char_t *sct_id, 
+    int sct_id_type,
+    void* user_params)
+{
+    /* delete method is not implemented, because we are still not supporting sct cancel function */
+
+    AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[rampart]Using default sct provider delete function.");
+
+    return AXIS2_SUCCESS;
+}
+
+AXIS2_EXTERN axis2_status_t AXIS2_CALL
+wsclient_validate_sct_default(
+    const axutil_env_t *env, 
+    axiom_node_t *sct_node, 
+    axis2_msg_ctx_t *msg_ctx,
+    void *user_params)
+{
+    /* default implementation does not need to validate anything. We haven't extended the 
+     * functionality of sct */
+
+    AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[rampart]Using default sct provider validate function.");
+
+    return AXIS2_SUCCESS;
+}
 
 
 static axis2_options_t *
@@ -357,7 +419,7 @@ wsclient_svc_option (axis2_svc_client_t *svc_client,
 					{
 						is_password = 1;
 						is_soap_enabled = 1;
-                        password_buffer = (axis2_char_t *) wsclient_options->value;
+                        password_buffer = axutil_strdup(env,  wsclient_options->value);
 						AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, 
 										"[wsclient] security password block ");
 					}
@@ -455,6 +517,14 @@ wsclient_svc_option (axis2_svc_client_t *svc_client,
 										"[wsclient] security digest block ");
 					}
 					break;
+                    case POLICY_FILE:
+                    {
+                        enable_rampart = AXIS2_TRUE;
+                        policy_file = (axis2_char_t *)wsclient_options->value;
+                        AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI,
+                                        "[wsclient] Set policy file:%s", policy_file);
+                    }
+                    break;
 					case XOP_IN:
 					{
 						axis2_char_t *dir = NULL;
@@ -757,6 +827,7 @@ else
             axis2_conf_t *conf = NULL;
             axutil_param_t *security_param = NULL;
             int defualt_ttl = 300;
+            neethi_policy_t *policy = NULL;
 
             rampart_context = rampart_context_create(env);
 
@@ -764,35 +835,58 @@ else
 			AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, 
 							"[wsclient] rampart module engaged");
 
-            if (!is_action)
-                axis2_options_set_action (options, env, "http://example.com/ws/2004/09/policy/Test/EchoRequest"/*"http://ws.apache.org/axis2/c"*/);
-            
-            axis2_svc_client_engage_module(svc_client, env, AXIS2_MODULE_ADDRESSING);
-            AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI,
+		    if (is_wsa_enabled)
+            {
+                if (!is_action)
+                {
+                    axis2_options_set_action (options, env, "http://example.com/ws/2004/09/policy/Test/EchoRequest"/*"http://ws.apache.org/axis2/c"*/);
+                }
+                axis2_svc_client_engage_module(svc_client, env, AXIS2_MODULE_ADDRESSING);
+                AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI,
                             "[wsclient] addressing module engaged");
-
-            root_om_node = neethi_options_get_root_node(neethi_options, env);
-
-            if(!root_om_node)
-            {
-                AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI,
-                           "[wsclient] Policy Creation failed");
-                return WSCLIENT_FAILURE;
-            }
-
-            status = axis2_svc_client_set_policy_from_om(svc_client, env, root_om_node);            
-            if(status != AXIS2_SUCCESS)
-            {
-                AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI,
-                           "[wsclient] Policy Creation failed");
-                return WSCLIENT_FAILURE;
             }
             
-            AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[wsf_sec_policy] setting creating policy node ");
+
+            /*Create the policy, from file*/
+            policy = neethi_util_create_policy_from_file(env, policy_file);
+            if(policy)
+            {
+                status = axis2_svc_client_set_policy(svc_client, env, policy);
+                AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI,
+                            "[wsclient] Policy set for the file %s", policy_file);
+
+                if(status == AXIS2_FAILURE)
+                {
+                    AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI,
+                               "[wsclient] Policy setting failed");
+                    printf("Policy setting failed\n");
+                }
+            }
+            else
+            {
+                root_om_node = neethi_options_get_root_node(neethi_options, env);
+
+                if(!root_om_node)
+                {
+                    AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI,
+                               "[wsclient] Policy Creation failed");
+                    return WSCLIENT_FAILURE;
+                }
+
+                status = axis2_svc_client_set_policy_from_om(svc_client, env, root_om_node);            
+                if(status != AXIS2_SUCCESS)
+                {
+                    AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI,
+                               "[wsclient] Policy Creation failed");
+                    return WSCLIENT_FAILURE;
+                }
+            }
+ 
+            AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[wsclient] setting creating policy node ");
 
             if (rampart_context_set_user(rampart_context, env,
                                      (axis2_char_t *)username_value) == AXIS2_SUCCESS)
-                AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[wsf_sec_policy] setting username ");
+                AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[wsclient] setting username ");
 
             /*We set the default ttl now. This needs to be changed when we process the user given
             ttl*/
@@ -820,74 +914,57 @@ else
                             "[wsclient] adding digest password property");
                 if(rampart_context_set_password_type(rampart_context, env,
                                                  (axis2_char_t *)"Digest") == AXIS2_SUCCESS)
-                    AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[wsf_sec_policy] setting passwordType ");
+                    AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[wsclient] setting passwordType ");
             }
 
             if (password_buffer)
             {
                 if(rampart_context_set_password(rampart_context, env,
                                             (axis2_char_t *)password_buffer) == AXIS2_SUCCESS)
-                AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[wsf_sec_policy] setting password ");
+                AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[wsclient] setting password ");
 
             }
 
-            if(enable_signature)
+            if(private_key_file)
             {
-                if(private_key_file)
-                {
-                    rampart_context_set_private_key_file(
-                                rampart_context, env, private_key_file);   
-                }
-                else
-                {
-                    AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[wsf_sec_policy] Private key file not specified. ");
-                    return WSCLIENT_FAILURE;
-                }
-                if(certificate_file)
-                {
-                    rampart_context_set_certificate_file(
-                                rampart_context, env, certificate_file);
-                }
-                else
-                {    
-                    AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[wsf_sec_policy] Certificate file not specified. ");
-                    return WSCLIENT_FAILURE;
-                }
-                if(recipient_certificate_file)
-                {
-                    rampart_context_set_receiver_certificate_file(
-                                rampart_context, env, recipient_certificate_file);
-                }
-                else
-                {
-                    AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[wsf_sec_policy] Reciever Certificate not specified. ");
-                    return WSCLIENT_FAILURE;
-                }
+                rampart_context_set_private_key_file(
+                            rampart_context, env, private_key_file);   
+            }
+            else
+            {
+                AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[wsclient] Private key file not specified. ");
+                return WSCLIENT_FAILURE;
+            }
+            if(certificate_file)
+            {
+                rampart_context_set_certificate_file(
+                            rampart_context, env, certificate_file);
+            }
+            else
+            {    
+                AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[wsclient] Certificate file not specified. ");
+                return WSCLIENT_FAILURE;
+            }
+            if(recipient_certificate_file)
+            {
+                rampart_context_set_receiver_certificate_file(
+                            rampart_context, env, recipient_certificate_file);
+            }
+            else
+            {
+                AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[wsclient] Reciever Certificate not specified. ");
+                return WSCLIENT_FAILURE;
             }
 
-            if(enable_encryption)
-            {
-                if(private_key_file)
-                {
-                    rampart_context_set_private_key_file(
-                                rampart_context, env, private_key_file);
-                }
-                else
-                {    
-                    AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[wsf_sec_policy] Private Key file not specified. ");
-                    return WSCLIENT_FAILURE;
-                }    
-                if(recipient_certificate_file)
-                {
-                    rampart_context_set_receiver_certificate_file(
-                                rampart_context, env, recipient_certificate_file);
-                }
-                else
-                {    
-                    AXIS2_LOG_DEBUG(env->log, AXIS2_LOG_SI, "[wsf_sec_policy] Reciever Certificate not specified. ");
-                    return WSCLIENT_FAILURE;
-                }    
-            }
+			rampart_context_set_obtain_security_context_token_fn(
+                rampart_context, env, wsclient_obtain_sct_default);
+            rampart_context_set_store_security_context_token_fn(
+                rampart_context, env, wsclient_store_sct_default);
+            rampart_context_set_delete_security_context_token_fn(
+                rampart_context, env, wsclient_delete_sct_default);
+            rampart_context_set_validate_security_context_token_fn(
+                rampart_context, env, wsclient_validate_sct_default);
+
 
             svc_ctx = axis2_svc_client_get_svc_ctx(svc_client, env);
             conf_ctx = axis2_svc_ctx_get_conf_ctx(svc_ctx, env);

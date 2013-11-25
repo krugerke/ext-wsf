@@ -21,6 +21,11 @@
                             </sp:X509Token>
                         </wsp:Policy>
                     </sp:RecipientToken>
+                    <sp:AlgorithmSuite>
+                        <wsp:Policy>
+                            <sp:Basic256Rsa15/>
+                        </wsp:Policy>
+                    </sp:AlgorithmSuite>
                     <sp:Layout>
                         <wsp:Policy>
                             <sp:Strict/>

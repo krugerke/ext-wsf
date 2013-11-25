@@ -105,7 +105,7 @@ axis2_mtom_mtom(
                         axiom_data_handler_t *data_handler_res = NULL;
                         axis2_byte_t *input_buff = NULL;
                         axis2_byte_t *buff = NULL;
-                        int buff_len = 0;
+                        size_t buff_len = 0;
 
 
                         axiom_data_handler_set_file_name(data_handler, env,
@@ -139,7 +139,10 @@ axis2_mtom_mtom(
                         axis2_char_t *file_name = NULL;
 
                         file_name = axiom_data_handler_get_file_name(data_handler, env);
-
+                        if(!file_name)
+                        {
+                            return NULL;
+                        }
 
                         data_handler_res = axiom_data_handler_create(env, file_name, NULL);
 
@@ -242,14 +245,10 @@ axiom_node_t *build_response2(
     axiom_node_t *text_node = NULL;
     axiom_namespace_t *ns1 = NULL;
 
-    ns1 =
-        axiom_namespace_create(env, "http://ws.apache.org/axis2/c/samples",
-                               "ns1");
-    mtom_om_ele =
-        axiom_element_create(env, NULL, "response", ns1, &mtom_om_node);
-
-    axiom_text_create_with_data_handler(env, mtom_om_node, data_handler,
-        &text_node);
+    ns1 = axiom_namespace_create(env, "http://ws.apache.org/axis2/c/samples","ns1");
+    mtom_om_ele = axiom_element_create(env, NULL, "response", ns1, &mtom_om_node);
+    axiom_text_create_with_data_handler(env, mtom_om_node, data_handler, &text_node);
+	axiom_namespace_free(ns1, env);
 
     return mtom_om_node;
 }

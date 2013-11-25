@@ -2,7 +2,7 @@ dnl run autogen.sh to generate the configure script.
 
 AC_PREREQ(2.59)
 
-AC_INIT(axis2_axiom-src, 1.4.0)
+AC_INIT(axis2_axiom-src, 1.6.0)
 AC_CANONICAL_SYSTEM
 AM_CONFIG_HEADER(config.h)
 AM_INIT_AUTOMAKE
@@ -49,7 +49,7 @@ AC_CHECK_LIB(z, inflate)
 #CFLAGS="$CFLAGS -ansi -Wall -D_LARGEFILE64_SOURCE -Wno-implicit-function-declaration"
 CFLAGS="$CFLAGS -D_LARGEFILE64_SOURCE"
 if test "$GCC" = "yes"; then
-    CFLAGS="$CFLAGS -ansi  -Wall -Wno-implicit-function-declaration "
+    CFLAGS="$CFLAGS -ansi  -Wall -Wno-implicit-function-declaration -D_GNU_SOURCE"
 fi
 
 LDFLAGS="$LDFLAGS -lpthread"
@@ -79,40 +79,55 @@ dnl AC_FUNC_MALLOC
 dnl AC_FUNC_REALLOC
 #AC_CHECK_FUNCS([memmove])
 
-AC_MSG_CHECKING(whether to build libxml2 xml parser library)
-AC_ARG_ENABLE(libxml2, [  --enable-libxml2    build libxml2 xml parser library wrapper. default=yes],
+AC_MSG_CHECKING(whether to build guththila xml parser library)
+AC_ARG_ENABLE(guththila, [  --enable-guththila    build guththila xml parser library wrapper. default=yes],
 [ case "${enableval}" in
   no)
     AC_MSG_RESULT(no)
-    WRAPPER_DIR=""
+    ;;
+  *)
+    AC_MSG_RESULT(yes)
+    WRAPPER_DIR="guththila"
+
+    ;;
+  esac ],
+  AC_MSG_RESULT(yes)
+  WRAPPER_DIR="guththila"
+)
+
+AC_MSG_CHECKING(whether to build libxml2 xml parser library)
+AC_ARG_ENABLE(libxml2, [  --enable-libxml2    build libxml2 xml parser library wrapper. default=no],
+[ case "${enableval}" in
+  no)
+    AC_MSG_RESULT(no)
     ;;
   *)
     AC_MSG_RESULT(yes)
     CFLAGS="$CFLAGS -DAXIS2_LIBXML2_ENABLED"
     WRAPPER_DIR="libxml2"
+    PKG_CHECK_MODULES(LIBXML2, libxml-2.0)
 
     ;;
   esac ],
-  AC_MSG_RESULT(yes)
-  WRAPPER_DIR="libxml2"
-  CFLAGS="$CFLAGS -DAXIS2_LIBXML2_ENABLED"
+  AC_MSG_RESULT(no)
 )
 
-AC_MSG_CHECKING(whether to build guththila xml parser library)
-AC_ARG_ENABLE(guththila, [  --enable-guththila    build guththila xml parser library wrapper. default=no],
+AC_MSG_CHECKING(whether to build xpath)
+AC_ARG_ENABLE(xpath, [  --enable-xpath    build xpath. default=yes],
 [ case "${enableval}" in
   no)
     AC_MSG_RESULT(no)
     ;;
   *)
     AC_MSG_RESULT(yes)
-    CFLAGS="$CFLAGS -DAXIS2_GUTHTHILA_ENABLED"
-    WRAPPER_DIR="guththila"
+    XPATH_DIR="xpath"
 
     ;;
   esac ],
-  AC_MSG_RESULT(no)
+  AC_MSG_RESULT(yes)
+  XPATH_DIR="xpath"
 )
+
 
 AC_MSG_CHECKING(whether to build tests)
 AC_ARG_ENABLE(tests, [  --enable-tests    build tests. default=no],
@@ -132,9 +147,8 @@ AC_ARG_ENABLE(tests, [  --enable-tests    build tests. default=no],
 )
 
 PKG_PROG_PKG_CONFIG(0.15)
-PKG_CHECK_MODULES(LIBXML2, libxml-2.0)
 CFLAGS="$CFLAGS $LIBXML2_CFLAGS $GUTHTHILA_CFLAGS"
-VERSION_NO="3:1:3"
+VERSION_NO="4:0:4"
 
 AC_SUBST(VERSION_NO)
 AC_SUBST(LIBXML2_CFLAGS)
@@ -142,6 +156,7 @@ AC_SUBST(LIBXML2_LIBS)
 AC_SUBST(WRAPPER_DIR)
 AC_SUBST(GUTHTHILA_LIBS)
 AC_SUBST(TESTDIR)
+AC_SUBST(XPATH_DIR)
 
 AC_CONFIG_FILES([Makefile \
     src/Makefile \
@@ -152,10 +167,12 @@ AC_CONFIG_FILES([Makefile \
     src/om/Makefile \
     src/util/Makefile \
     src/attachments/Makefile \
+    src/xpath/Makefile \
     test/Makefile \
     test/om/Makefile \
     test/soap/Makefile \
     test/util/Makefile \
+    test/xpath/Makefile \
     include/Makefile
     ])
     

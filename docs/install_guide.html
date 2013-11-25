@@ -39,12 +39,6 @@ href="mailto:wsf-c-dev-request@wso2.org?subject=subscribe">subcribe</a></p>
   </ol>
    </li>
    <li><a href="#2.Installing_using_pecl_tool">Installing using pecl tool</a></li>
-   <li><a href="#Installing_Linux_Binaries">Installing Linux Binaries ( rmp and deb )</a>
-   <ol>
-       <li><a href="#Installing from debian and ubuntu deb">Installing from debian and ubuntu deb </a></li>
-       <li><a href="#Installing using rpm">Installing using rpm </a></li>
-   </ol>
-    </li>
   </ol>
 <a id="1.Installing_and_Running_on_Linux"></a><h2>1. Installing and Running on Linux</h2>
 <a id="Prerequisites"></a><h3>1.1 &nbsp;Prerequisites</h3>
@@ -52,16 +46,12 @@ href="mailto:wsf-c-dev-request@wso2.org?subject=subscribe">subcribe</a></p>
         &nbsp; &nbsp; &nbsp;In order to build and run the WSF/PHP Linux source distribution, you
         need to have the following software installed on&nbsp; your system.</p>
     <ol>
-    <li>PHP 5.1.1 or later, which can be downloaded from the <a
+    <li>PHP 5.2.0 or later, which can be downloaded from the <a
     href="http://www.php.net/">
             PHP </a>official Web site. Please refer to the additional note on installing
         PHP as a DSO module to the Apache2 Web server.&nbsp; If you are using a pre-installed
         version of PHP, please make sure that you have the developer version installed,
         so that you can compile the WSO2 WSF/PHP source.</li>
-        <li>libxml2 <a href="http://xmlsoft.org/downloads.html">Download</a><a
-    href="http://xmlsoft.org/downloads.html"></a> (Note: Most Linux systems have libxml2
-        by default.) </li>
-        
     <li> OpenSSL&nbsp; <a href="http://www.openssl.org/" >
         Download</a> </li>
     </ol>
@@ -139,21 +129,8 @@ add the following line to the php.ini<br />
 
     <p>
             To build WSO2 WSF/PHP from source you will need the following dependency libraries.</p>
-    <p>
-      Libxml2 binary distribution <a href="http://www.zlatkovic.com/pub/libxml/">Download</a>
-    </p>
-   
-    <p>
-        iconv binary distribution <a href="http://www.zlatkovic.com/pub/libxml/">Download</a>
-    </p>
-    <p>
-        OpenSSL binary distribution (Use MSI installer) <a href="http://www.slproweb.com/products/Win32OpenSSL.html"> Download</a>
-    </p>
-    <p>
-        PHP Source and PHP Binary distributions <a href="http://www.php.net/downloads"> Download</a>
-        </p>
-    <p>
-        Bindlib [ win32 build tools for PHP ]<a href="http://pecl2.php.net/downloads/php-windows-builds/php-libs/VC8/x86/bindlib-cvs-vc8.zip"> Download</a>
+   <p>
+        OpenSSL binary distribution (Use MSI installer) <a href="http://www.slproweb.com/products/Win32OpenSSL.html"> 
     </p>
     <p>
         In addition you need to have Microsoft Visual Studio installed on your system. 
@@ -288,7 +265,7 @@ document root. If you want to run samples</p>
         need to have ssl configured in apache as well.</p>
         <a id="2.Installing_using_pecl_tool"></a>
 <h2>
-          3 Installing using pecl tool</h2>
+          3 Installing using pecl tool [ not available with 2.1.0 release ] </h2>
     You can use the pecl tool to install WSO2 WSF/PHP.<br />
     <br />
     1. First you need to download and install<a href="http://dist.wso2.org/products/wsf/c/1.2.0/"> WSO2 WSF/C Web Services framework</a>
@@ -325,57 +302,5 @@ document root. If you want to run samples</p>
     on your system.]
     <br />
     <br />
-    <a id="Installing_Linux_Binaries"></a>
-    <h2>4 Installing Linux Binaries ( rmp and deb )</h2>
-    <a id="Installing from debian and ubuntu deb"></a>
-    <h3>4.1 Installing from debian and ubuntu deb</h3>
-    <p>
-    You should have php5 and
-    apache2 installed using apt tool.<br />
-    Usually apache Web Root will be /var/www and php extension directory will be /usr/lib/php5/*.
-    php.ini file will be located<br />
-    in /etc/php5/apache2 directory.<br />
-    <br />
-    <strong>dpkg -i wso2-wsf-php-xyz.deb</strong><br />
-    <br />
-    samples and scripts folders will get copied to php extensions directory.
-    <br />
-    Edit php.ini and append include_path entry to include &lt;php extensions directory&gt;/wsf_php/scripts
-    directory.<br />
-    <strong>include_path = ".:&lt;php extensions directory&gt;/wsf_php/scripts"<br />
-    </strong>Copy samples directory to web root.<br />
-    <br />
-    To use wsdl mode, you will need php_xsl extension installed on your system.
-    <br />
-    <strong>apt-get install php5-xsl</strong><br />
-    <br />
-    Also enable xsl.so in php.ini.<br />
-                        <strong>extension=xsl.so<br />
-                        </strong>[Note]<br/>
-        Scripts for creating database for reliable messaging will be located in &lt;php
-        extensions directory&gt;/wsf_c/bin/sandesha2 directory.</p>
-    <h3>4.2 Installing using rpm</h3>
-    You should have php5
-    and apache2 installed using rpm. Also install<br />
-    php-xml rpm which includes a number of php extensions including xsl and dom. ( <strong>
-        yum install php-xml </strong>).<br />
-    Usually apache Web Root will be /var/www/html and php extensions directory will be /usr/lib/php/modules.
-    php.ini file will be located<br />
-    in /etc directory.<br />
-    <br />
-    <strong>rpm -i wso2-wsf-php-xyz.rpm</strong><br />
-    <br />
-    samples, scripts, docs and sandesha2 (scripts for creating database for RM) folders
-    will be inside a folder named wsf_php in /usr/lib/php/modules&nbsp; directory.
-    <br />
-    Edit php.ini and append include_path entry to include /usr/lib/php/modules/wsf_php/scripts
-    directory.<br />
-    <strong>include_path = ".:/usr/lib/php/modules/wsf_php/scripts"</strong><br />
-    <br />
-    To use wsdl mode, you will need <strong>php_xsl</strong> extension installed on
-    your system and enabled in php.ini.<br />
-    <strong>extension=xsl.so</strong><br />
-    &nbsp;
-       
 </body>
 </html>

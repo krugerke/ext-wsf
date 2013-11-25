@@ -130,6 +130,17 @@ extern "C"
         const axis2_op_t * op,
         const axutil_env_t * env,
         const axis2_char_t * name);
+	/**
+	 * Removes a parameter assiciated with the operation
+	 * @param op pointer to operation
+	 * @param env pointer to environment struct
+	 * @param param_name parameter name to be removed
+	 */
+	AXIS2_EXTERN axis2_status_t AXIS2_CALL 
+	axis2_op_remove_param
+		(axis2_op_t *op,
+		const axutil_env_t *env,
+		const axis2_char_t *param_name);
 
     /**
      * Gets all parameters.
@@ -705,6 +716,32 @@ extern "C"
     axis2_op_get_base(
         const axis2_op_t * op,
         const axutil_env_t * env);
+
+	/**
+	 * Checks whether this operation is engaged to module
+	 * @param op point to the operation
+	 * @param env pointer to environment struct
+	 * @param mod_qname module qname
+	 */
+	AXIS2_EXTERN axis2_bool_t AXIS2_CALL
+	axis2_op_is_module_engaged(
+		const axis2_op_t *op,
+		const axutil_env_t *env,
+		const axutil_qname_t *mod_qname);
+
+	/**
+	 * Disengages a module from operation.
+	 * @param op pointer to the operation
+	 * @param env pointer to environment struct
+	 * @param mod_qname module qname
+	 */
+	AXIS2_EXTERN axis2_status_t AXIS2_CALL
+	axis2_op_disengage_module(
+	const axis2_op_t *op,
+	const axutil_env_t *env,
+	struct axis2_module_desc *mod_desc,
+	struct axis2_conf *conf);
+
 
     /** @} */
 #ifdef __cplusplus

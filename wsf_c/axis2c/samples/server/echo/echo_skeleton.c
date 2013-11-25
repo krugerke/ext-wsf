@@ -92,6 +92,19 @@ echo_invoke(
      * To see how to deal with multiple impl methods, have a look at the
      * math sample.
      */
+	axis2_endpoint_ref_t* to_epr = NULL;
+	to_epr = axis2_msg_ctx_get_to(msg_ctx, env);
+	
+	if (to_epr)
+	{
+		axis2_char_t* to_address = NULL;
+		to_address = (axis2_char_t*)axis2_endpoint_ref_get_address(to_epr, env);
+	
+		if (to_address && strstr(to_address, AXIS2_ANON_SERVICE))
+		{
+			axis2_msg_ctx_set_wsa_action(msg_ctx, env, AXIS2_ANON_OUT_IN_OP);
+		}
+	}
 
     return axis2_echo_echo(env, node);
 }

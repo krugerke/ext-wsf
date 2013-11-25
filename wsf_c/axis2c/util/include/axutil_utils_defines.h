@@ -21,7 +21,7 @@
 
 #include <stddef.h>
 
-#if !defined(WIN32)
+#if !defined(_WIN32)
 #include <stdint.h> 
 #endif
 
@@ -30,7 +30,7 @@ extern "C"
 {
 #endif
 
-#if defined(WIN32) && !defined(AXIS2_SKIP_INT_TYPEDEFS)
+#if defined(_WIN32) && !defined(AXIS2_SKIP_INT_TYPEDEFS)
     /**
      * ANSI Type definitions for Windows
      */
@@ -49,7 +49,7 @@ extern "C"
  * for printf family of functions
  */
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #define AXIS2_PRINTF_INT64_FORMAT_SPECIFIER "%I64d"
 #define AXIS2_PRINTF_UINT64_FORMAT_SPECIFIER "%I64u"
 #define AXIS2_PRINTF_INT32_FORMAT_SPECIFIER "%I32d"
@@ -62,8 +62,15 @@ extern "C"
 #define AXIS2_PRINTF_INT64_FORMAT_SPECIFIER "%lld"
 #define AXIS2_PRINTF_UINT64_FORMAT_SPECIFIER "%llu"
 #endif
-#define AXIS2_PRINTF_INT32_FORMAT_SPECIFIER "%d"
-#define AXIS2_PRINTF_UINT32_FORMAT_SPECIFIER "%u"
+# if defined(_MSC_VER) && _MSC_VER >= 1300
+#  define AXIS2_PRINTF_INT32_FORMAT_SPECIFIER "%I32d"
+#  define AXIS2_PRINTF_UINT32_FORMAT_SPECIFIER "%I32u"
+# else
+#  define AXIS2_PRINTF_INT32_FORMAT_SPECIFIER "%d"
+#  define AXIS2_PRINTF_UINT32_FORMAT_SPECIFIER "%u"
+# endif
+/**#define AXIS2_PRINTF_INT32_FORMAT_SPECIFIER "%d"
+#define AXIS2_PRINTF_UINT32_FORMAT_SPECIFIER "%u" */
 #endif
 
     /**
@@ -100,7 +107,7 @@ extern "C"
     /**
       *   Exporting
       */
-#if defined(WIN32) && !defined(AXIS2_DECLARE_STATIC)
+#if defined(_WIN32) && !defined(AXIS2_DECLARE_STATIC)
 #define AXIS2_EXPORT __declspec(dllexport)
 #else
 #define AXIS2_EXPORT
@@ -109,7 +116,7 @@ extern "C"
     /**
       *   Importing
       */
-#if defined(WIN32)
+#if defined(_WIN32)
 #define AXIS2_IMPORT __declspec(dllimport)
 #else
 #define AXIS2_IMPORT
@@ -119,26 +126,25 @@ extern "C"
       *   Calling Conventions
       */
 #if defined(__GNUC__)
+
 #if defined(__i386)
 #define AXIS2_CALL __attribute__((cdecl))
 #define AXIS2_WUR __attribute__((warn_unused_result))
 #else
 #define AXIS2_CALL
 #define AXIS2_WUR
-
-
 #endif
-#else
-#if defined(__unix)
+
+#elif defined(_WIN32)
+#define AXIS2_CALL __stdcall
+#define AXIS2_WUR
+
+#else                           /* Unix */
 #define AXIS2_CALL
 #define AXIS2_WUR
 
+#endif
 
-#else                           /* WIN32 */
-#define AXIS2_CALL __stdcall
-#define AXIS2_WUR
-#endif
-#endif
 #define AXIS2_THREAD_FUNC AXIS2_CALL
 
 
@@ -169,7 +175,7 @@ extern "C"
 
 #endif                          /* def DOXYGEN */
 
-#if !defined(WIN32)
+#if !defined(_WIN32)
 
     /**
      * Axis2 Core functions are declared with AXIS2_EXTERN  AXIS2_CALL

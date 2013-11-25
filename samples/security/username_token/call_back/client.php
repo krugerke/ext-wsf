@@ -25,8 +25,8 @@ try {
                                 array("to" => "http://localhost/samples/security/username_token/call_back/service.php",
                                       "action" => "http://php.axis2.org/samples/echoString"));
     
-    $sec_array = array("useUsernameToken" => TRUE );
-    $policy = new WSPolicy(array("security" => $sec_array));
+    $policy_file = file_get_contents("policy.xml");
+    $policy = new WSPolicy($policy_file);
     $sec_token = new WSSecurityToken(array("user" => "Raigama",
                                            "password" => "RaigamaPW",
                                            "passwordType" => "Digest"));

@@ -2,7 +2,7 @@
 
 ./autogen.sh
 
-./configure --prefix=${WSFC_HOME} --with-axis2=${WSFC_HOME}/include/axis2-1.5.0
-make 
+./configure --prefix=${WSFC_HOME}
+make -j 10
 make install
 

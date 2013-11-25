@@ -2,7 +2,7 @@ dnl run autogen.sh to generate the configure script.
 
 AC_PREREQ(2.59)
 
-AC_INIT(axis2_util-src, 1.5.0)
+AC_INIT(axis2_util-src, 1.6.0)
 AC_CANONICAL_SYSTEM
 AM_CONFIG_HEADER(config.h)
 AM_INIT_AUTOMAKE
@@ -167,7 +167,7 @@ AC_ARG_ENABLE(guththila, [  --enable-guththila    build guththila xml parser lib
 )
 
 AC_MSG_CHECKING(whether to build tests)
-AC_ARG_ENABLE(tests, [  --enable-tests    build tests. default=yes],
+AC_ARG_ENABLE(tests, [  --enable-tests    build tests. default=no],
 [ case "${enableval}" in
   yes)
     AC_MSG_RESULT(yes)

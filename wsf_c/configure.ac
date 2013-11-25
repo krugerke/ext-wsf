@@ -2,7 +2,7 @@ dnl run autogen.sh to generate the configure script.
 
 AC_PREREQ(2.59)
 
-AC_INIT(wso2-wsf-c-src, 1.3.0)
+AC_INIT(wso2-wsf-c-src, 2.0.0)
 AC_CANONICAL_SYSTEM
 AM_CONFIG_HEADER(config.h)
 AM_INIT_AUTOMAKE([tar-ustar])
@@ -145,6 +145,41 @@ AC_ARG_WITH(xmpp,
   AC_MSG_RESULT(no)
 )
 
+AC_MSG_CHECKING(whether to build udp transport)
+AC_ARG_ENABLE(udp, [  --enable-udp
+                          build udp transport (default=no)],
+[ case "${enableval}" in
+  no)
+    AC_MSG_RESULT(no)
+    ;;
+  *)
+    AC_MSG_RESULT(yes)
+    UDP_DIR="udp"
+
+    ;;
+  esac ],
+  AC_MSG_RESULT(no)
+)
+
+AC_MSG_CHECKING(whether to use libcurl)
+AC_ARG_ENABLE(libcurl, [  --enable-libcurl
+                          enable libcurl based client transport (default=no)],
+[ case "${enableval}" in
+  no)
+    AC_MSG_RESULT(no)
+    CFLAGS="$CFLAGS"
+    libcurl_enabled=false
+    ;;
+  *)
+    AC_MSG_RESULT(yes)
+    CFLAGS="$CFLAGS -DAXIS2_LIBCURL_ENABLED"
+    libcurl_enabled=true
+    ;;
+  esac ],
+  AC_MSG_RESULT(no)
+  CFLAGS="$CFLAGS"
+)
+
 AC_MSG_CHECKING(whether to build rampart)
 AC_ARG_ENABLE(rampart, [  --enable-rampart	build rampart. default=yes],
 [ case "${enableval}" in
@@ -285,11 +320,15 @@ AC_ARG_WITH(openssl,
     AC_MSG_RESULT($withval)
     dnl Find oprnssl dir in the path
     if test -d $withval; then
-        opensslinc="-I$withval/include"
+        opensslinc="-I$withval/include/openssl"
         openssllib="-L$withval/lib"
+	CFLAGS="$CFLAGS -DAXIS2_SSL_ENABLED"
+	ssl_enabled=true
     elif test -d '/usr/include/openssl'; then
         opensslinc="-I/usr/include/openssl"
         openssllib=""
+	CFLAGS="$CFLAGS -DAXIS2_SSL_ENABLED"
+	ssl_enabled=true
     else
         AC_MSG_ERROR(could not find openssl. stop)
     fi

@@ -1,4 +1,3 @@
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -27,13 +26,14 @@
 
 /**
  * @file axis2_http_svr_thread.h
- * @brief axis2 HTTP server listning thread implementation
+ * @brief axis2 HTTP server listening thread implementation
  */
 
 #include <axis2_const.h>
 #include <axis2_defines.h>
 #include <axutil_env.h>
 #include <axis2_http_worker.h>
+
 
 #ifdef __cplusplus
 extern "C"
@@ -104,10 +104,14 @@ extern "C"
      * @param port
      */
     AXIS2_EXTERN axis2_http_svr_thread_t *AXIS2_CALL
-
     axis2_http_svr_thread_create(
         const axutil_env_t * env,
         int port);
+
+	AXIS2_EXTERN int AXIS2_CALL
+		axis2_http_svr_thread_get_listen_socket(
+		axis2_http_svr_thread_t *svr_thread,
+		const axutil_env_t *env);
 
     /** @} */
 #ifdef __cplusplus

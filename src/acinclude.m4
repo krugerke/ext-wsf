@@ -1,5 +1,5 @@
 dnl
-dnl $Id: acinclude.m4,v 1.332.2.14.2.26 2007/08/20 14:28:45 jani Exp $
+dnl $Id: acinclude.m4 315258 2011-08-21 22:57:13Z rasmus $
 dnl
 dnl This file contains local autoconf functions.
 dnl
@@ -432,6 +432,7 @@ AC_DEFUN([PHP_EVAL_INCLINE],[
 dnl internal, don't use
 AC_DEFUN([_PHP_ADD_LIBPATH_GLOBAL],[
   PHP_RUN_ONCE(LIBPATH, $1, [
+    test "x$PHP_RPATH" != "xno" &&
     test -n "$ld_runpath_switch" && LDFLAGS="$LDFLAGS $ld_runpath_switch$1"
     LDFLAGS="$LDFLAGS -L$1"
     PHP_RPATHS="$PHP_RPATHS $1"
@@ -451,6 +452,7 @@ AC_DEFUN([PHP_ADD_LIBPATH],[
     ],[
       if test "$ext_shared" = "yes"; then
         $2="-L$ai_p [$]$2"
+        test "x$PHP_RPATH" != "xno" && \
         test -n "$ld_runpath_switch" && $2="$ld_runpath_switch$ai_p [$]$2"
       else
         _PHP_ADD_LIBPATH_GLOBAL([$ai_p])
@@ -711,10 +713,7 @@ ifelse([$2],,,[AC_MSG_CHECKING([$2])])
 AC_ARG_WITH($1,[$3],$5=[$]withval,
 [
   $5=ifelse($4,,no,$4)
-
-  if test "$PHP_ENABLE_ALL" && test "$6" = "yes"; then
-    $5=$PHP_ENABLE_ALL
-  fi
+  ifelse($6,yes,[test "$PHP_ENABLE_ALL" && $5=$PHP_ENABLE_ALL])
 ])
 PHP_ARG_ANALYZE($5,[$2],$6)
 ])
@@ -739,10 +738,7 @@ ifelse([$2],,,[AC_MSG_CHECKING([$2])])
 AC_ARG_ENABLE($1,[$3],$5=[$]enableval,
 [
   $5=ifelse($4,,no,$4)
-
-  if test "$PHP_ENABLE_ALL" && test "$6" = "yes"; then
-    $5=$PHP_ENABLE_ALL
-  fi
+  ifelse($6,yes,[test "$PHP_ENABLE_ALL" && $5=$PHP_ENABLE_ALL])
 ])
 PHP_ARG_ANALYZE($5,[$2],$6)
 ])
@@ -837,7 +833,7 @@ AC_DEFUN([PHP_BUILD_PROGRAM],[
 ])
 
 dnl
-dnl PHP_SHARED_MODULE(module-name, object-var, build-dir, cxx)
+dnl PHP_SHARED_MODULE(module-name, object-var, build-dir, cxx, zend_ext)
 dnl
 dnl Basically sets up the link-stage for building module-name
 dnl from object_var in build-dir.
@@ -860,7 +856,11 @@ AC_DEFUN([PHP_SHARED_MODULE],[
       ;;
   esac
 
-  PHP_MODULES="$PHP_MODULES \$(phplibdir)/$1.$suffix"
+  if test "x$5" = "xyes"; then
+    PHP_ZEND_EX="$PHP_ZEND_EX \$(phplibdir)/$1.$suffix"
+  else
+    PHP_MODULES="$PHP_MODULES \$(phplibdir)/$1.$suffix"
+  fi
   PHP_SUBST($2)
   cat >>Makefile.objects<<EOF
 \$(phplibdir)/$1.$suffix: $3/$1.$suffix
@@ -880,6 +880,17 @@ dnl and optionally also the source-files for the SAPI-specific
 dnl objects.
 dnl
 AC_DEFUN([PHP_SELECT_SAPI],[
+  if test "$PHP_SAPI" != "default"; then
+AC_MSG_ERROR([
++--------------------------------------------------------------------+
+|                        *** ATTENTION ***                           |
+|                                                                    |
+| You've configured multiple SAPIs to be build. You can build only   |
+| one SAPI module and CLI binary at the same time.                   |
++--------------------------------------------------------------------+
+])
+  fi
+
   PHP_SAPI=$1
   
   case "$2" in
@@ -916,7 +927,7 @@ AC_DEFUN([PHP_GEN_BUILD_DIRS],[
 ])
 
 dnl
-dnl PHP_NEW_EXTENSION(extname, sources [, shared [,sapi_class[, extra-cflags[, cxx]]]])
+dnl PHP_NEW_EXTENSION(extname, sources [, shared [, sapi_class [, extra-cflags [, cxx [, zend_ext]]]]])
 dnl
 dnl Includes an extension in the build.
 dnl
@@ -928,6 +939,8 @@ dnl a dynamically loadable library. Optional parameter "sapi_class" can
 dnl be set to "cli" to mark extension build only with CLI or CGI sapi's.
 dnl "extra-cflags" are passed to the compiler, with 
 dnl @ext_srcdir@ and @ext_builddir@ being substituted.
+dnl "cxx" can be used to indicate that a C++ shared module is desired.
+dnl "zend_ext" indicates a zend extension.
 AC_DEFUN([PHP_NEW_EXTENSION],[
   ext_builddir=[]PHP_EXT_BUILDDIR($1)
   ext_srcdir=[]PHP_EXT_SRCDIR($1)
@@ -949,10 +962,10 @@ dnl ---------------------------------------------- Shared module
       PHP_ADD_SOURCES_X(PHP_EXT_DIR($1),$2,$ac_extra,shared_objects_$1,yes)
       case $host_alias in
         *netware*[)]
-          PHP_SHARED_MODULE(php$1,shared_objects_$1, $ext_builddir, $6)
+          PHP_SHARED_MODULE(php$1,shared_objects_$1, $ext_builddir, $6, $7)
           ;;
         *[)]
-          PHP_SHARED_MODULE($1,shared_objects_$1, $ext_builddir, $6)
+          PHP_SHARED_MODULE($1,shared_objects_$1, $ext_builddir, $6, $7)
           ;;
       esac
       AC_DEFINE_UNQUOTED([COMPILE_DL_]translit($1,a-z_-,A-Z__), 1, Whether to build $1 as dynamic module)
@@ -962,12 +975,15 @@ dnl ---------------------------------------------- Shared module
   if test "$3" != "shared" && test "$3" != "yes" && test "$4" = "cli"; then
 dnl ---------------------------------------------- CLI static module
     [PHP_]translit($1,a-z_-,A-Z__)[_SHARED]=no
-    if test "$PHP_SAPI" = "cgi"; then
-      PHP_ADD_SOURCES(PHP_EXT_DIR($1),$2,$ac_extra,)
-      EXT_STATIC="$EXT_STATIC $1"
-    else
-      PHP_ADD_SOURCES(PHP_EXT_DIR($1),$2,$ac_extra,cli)
-    fi
+    case "$PHP_SAPI" in
+      cgi|embed[)]
+        PHP_ADD_SOURCES(PHP_EXT_DIR($1),$2,$ac_extra,)
+        EXT_STATIC="$EXT_STATIC $1"
+        ;;
+      *[)]
+        PHP_ADD_SOURCES(PHP_EXT_DIR($1),$2,$ac_extra,cli)
+        ;;
+    esac
     EXT_CLI_STATIC="$EXT_CLI_STATIC $1"
   fi
   PHP_ADD_BUILD_DIR($ext_builddir)
@@ -1086,7 +1102,7 @@ ifelse([$5],[],,[else $5])
 dnl
 dnl PHP_CHECK_SIZEOF(type, cross-value, extra-headers)
 dnl
-AC_DEFUN(PHP_CHECK_SIZEOF, [
+AC_DEFUN([PHP_CHECK_SIZEOF], [
   AC_MSG_CHECKING([size of $1])
   _PHP_CHECK_SIZEOF($1, $2, $3, [
     AC_DEFINE_UNQUOTED([SIZEOF_]translit($1,a-z,A-Z_), [$]php_cv_sizeof_[]$1, [Size of $1])
@@ -1210,7 +1226,7 @@ $1
     }
 
   ],[
-    ac_cv_pwrite=yes
+    ac_cv_pwrite=no
   ],[
     ac_cv_pwrite=no
   ],[
@@ -1239,7 +1255,7 @@ $1
     exit(0);
     }
   ],[
-    ac_cv_pread=yes
+    ac_cv_pread=no
   ],[
     ac_cv_pread=no
   ],[
@@ -1679,7 +1695,7 @@ dnl PHP_BROKEN_GLIBC_FOPEN_APPEND
 dnl
 AC_DEFUN([PHP_BROKEN_GLIBC_FOPEN_APPEND], [
   AC_MSG_CHECKING([for broken libc stdio])
-  AC_CACHE_VAL(have_broken_glibc_fopen_append,[
+  AC_CACHE_VAL(_cv_have_broken_glibc_fopen_append,[
   AC_TRY_RUN([
 #include <stdio.h>
 int main(int argc, char *argv[])
@@ -1705,8 +1721,8 @@ int main(int argc, char *argv[])
   return 0;
 }
 ],
-[have_broken_glibc_fopen_append=no],
-[have_broken_glibc_fopen_append=yes ],
+[_cv_have_broken_glibc_fopen_append=no],
+[_cv_have_broken_glibc_fopen_append=yes ],
 AC_TRY_COMPILE([
 #include <features.h>
 ],[
@@ -1714,11 +1730,11 @@ AC_TRY_COMPILE([
 choke me
 #endif
 ],
-[have_broken_glibc_fopen_append=yes],
-[have_broken_glibc_fopen_append=no ])
+[_cv_have_broken_glibc_fopen_append=yes],
+[_cv_have_broken_glibc_fopen_append=no ])
 )])
 
-  if test "$have_broken_glibc_fopen_append" = "yes"; then
+  if test "$_cv_have_broken_glibc_fopen_append" = "yes"; then
     AC_MSG_RESULT(yes)
     AC_DEFINE(HAVE_BROKEN_GLIBC_FOPEN_APPEND,1, [Define if your glibc borks on fopen with mode a+])
   else
@@ -2149,17 +2165,17 @@ AC_DEFUN([PHP_PROG_RE2C],[
   AC_CHECK_PROG(RE2C, re2c, re2c)
   if test -n "$RE2C"; then
     AC_CACHE_CHECK([for re2c version], php_cv_re2c_version, [
-      re2c_vernum=`re2c --vernum 2>/dev/null`
-      if test -z "$re2c_vernum" || test "$re2c_vernum" -lt "1200"; then
+      re2c_vernum=`$RE2C --vernum 2>/dev/null`
+      if test -z "$re2c_vernum" || test "$re2c_vernum" -lt "1304"; then
         php_cv_re2c_version=invalid
       else
-        php_cv_re2c_version="`re2c --version | cut -d ' ' -f 2  2>/dev/null` (ok)"
+        php_cv_re2c_version="`$RE2C --version | cut -d ' ' -f 2  2>/dev/null` (ok)"
       fi 
     ])
   fi
   case $php_cv_re2c_version in
     ""|invalid[)]
-      AC_MSG_WARN([You will need re2c 0.12.0 or later if you want to regenerate PHP parsers.])
+      AC_MSG_WARN([You will need re2c 0.13.4 or later if you want to regenerate PHP parsers.])
       RE2C="exit 0;"
       ;;
   esac
@@ -2214,6 +2230,7 @@ AC_DEFUN([PHP_SETUP_ICU],[
       AC_MSG_ERROR([ICU version 3.4 or later is required])
     fi
 
+    ICU_VERSION=$icu_version
     ICU_INCS=`$ICU_CONFIG --cppflags-searchpath`
     ICU_LIBS=`$ICU_CONFIG --ldflags --ldflags-icuio`
     PHP_EVAL_INCLINE($ICU_INCS)
@@ -2241,7 +2258,7 @@ AC_DEFUN([PHP_SETUP_KERBEROS],[
     KERBEROS_LIBS=`$KRB5_CONFIG --libs gssapi`
     KERBEROS_CFLAGS=`$KRB5_CONFIG --cflags gssapi`
 
-    if test -n "$KERBEROS_LIBS" && test -n "$KERBEROS_CFLAGS"; then
+    if test -n "$KERBEROS_LIBS"; then
       found_kerberos=yes
       PHP_EVAL_LIBLINE($KERBEROS_LIBS, $1)
       PHP_EVAL_INCLINE($KERBEROS_CFLAGS)
@@ -2256,7 +2273,7 @@ AC_DEFUN([PHP_SETUP_KERBEROS],[
     fi
 
     for i in $PHP_KERBEROS; do
-      if test -f $i/$PHP_LIBDIR/libkrb5.a || test -f $i/$PHP_LIBDIR/libkrb5.$SHLIB_SUFFIX_NAME; then
+      if test -f $i/$PHP_LIBDIR/libkrb5.$SHLIB_SUFFIX_NAME || test -f $i/$PHP_LIBDIR/$DEB_HOST_MULTIARCH/libkrb5.$SHLIB_SUFFIX_NAME || test -f $i/$PHP_LIBDIR/libkrb5.a; then
         PHP_KERBEROS_DIR=$i
         break
       fi
@@ -2333,7 +2350,7 @@ AC_DEFUN([PHP_SETUP_OPENSSL],[
       if test -r $i/include/openssl/evp.h; then
         OPENSSL_INCDIR=$i/include
       fi
-      if test -r $i/$PHP_LIBDIR/libssl.a -o -r $i/$PHP_LIBDIR/libssl.$SHLIB_SUFFIX_NAME; then
+      if test -r $i/$PHP_LIBDIR/libssl.a -o -r $i/$PHP_LIBDIR/$DEB_HOST_MULTIARCH/libssl.$SHLIB_SUFFIX_NAME -o -r $i/$PHP_LIBDIR/libssl.$SHLIB_SUFFIX_NAME; then
         OPENSSL_LIBDIR=$i/$PHP_LIBDIR
       fi
       test -n "$OPENSSL_INCDIR" && test -n "$OPENSSL_LIBDIR" && break
@@ -2364,9 +2381,7 @@ AC_DEFUN([PHP_SETUP_OPENSSL],[
 
     PHP_ADD_INCLUDE($OPENSSL_INCDIR)
   
-    PHP_CHECK_LIBRARY(crypto, CRYPTO_free, [
-      PHP_ADD_LIBRARY(crypto,,$1)
-    ],[
+    PHP_CHECK_LIBRARY(crypto, CRYPTO_free, [:],[
       AC_MSG_ERROR([libcrypto not found!])
     ],[
       -L$OPENSSL_LIBDIR
@@ -2383,6 +2398,7 @@ AC_DEFUN([PHP_SETUP_OPENSSL],[
     ])
     LIBS=$old_LIBS
     PHP_ADD_LIBRARY(ssl,,$1)
+    PHP_ADD_LIBRARY(crypto,,$1)
 
     PHP_ADD_LIBPATH($OPENSSL_LIBDIR, $1)
   fi
@@ -2410,10 +2426,12 @@ AC_DEFUN([PHP_SETUP_ICONV], [
   $php_shtool mkdir -p ext/iconv
 
   echo > ext/iconv/php_have_bsd_iconv.h
+  echo > ext/iconv/php_have_ibm_iconv.h
   echo > ext/iconv/php_have_glibc_iconv.h
   echo > ext/iconv/php_have_libiconv.h
   echo > ext/iconv/php_have_iconv.h
   echo > ext/iconv/php_php_iconv_impl.h
+  echo > ext/iconv/php_iconv_aliased_libiconv.h
   echo > ext/iconv/php_php_iconv_h_path.h
   echo > ext/iconv/php_iconv_supports_errno.h
 
@@ -2461,6 +2479,8 @@ AC_DEFUN([PHP_SETUP_ICONV], [
         found_iconv=yes
         PHP_DEFINE(HAVE_LIBICONV,1,[ext/iconv])
         AC_DEFINE(HAVE_LIBICONV,1,[ ])
+        PHP_DEFINE([ICONV_ALIASED_LIBICONV],1,[ext/iconv])
+        AC_DEFINE([ICONV_ALIASED_LIBICONV],1,[iconv() is aliased to libiconv() in -liconv])
       ], [
         PHP_CHECK_LIBRARY($iconv_lib_name, iconv, [
           found_iconv=yes
@@ -2572,7 +2592,7 @@ dnl This macro is used to get a comparable
 dnl version for apache1/2.
 dnl
 AC_DEFUN([PHP_AP_EXTRACT_VERSION],[
-  ac_output=`$1 -v 2>&1 | grep version`
+  ac_output=`$1 -v 2>&1 | grep version | $SED -e 's/Oracle-HTTP-//'`
   ac_IFS=$IFS
 IFS="- /.
 "
@@ -2648,13 +2668,13 @@ EOF
   for arg in $ac_configure_args; do
      if test `expr -- $arg : "'.*"` = 0; then
         if test `expr -- $arg : "--.*"` = 0; then
-       	  break;
+          break;
         fi
         echo "'[$]arg' \\" >> $1
         CONFIGURE_OPTIONS="$CONFIGURE_OPTIONS '[$]arg'"
      else
         if test `expr -- $arg : "'--.*"` = 0; then
-       	  break;
+          break;
         fi
         echo "[$]arg \\" >> $1
         CONFIGURE_OPTIONS="$CONFIGURE_OPTIONS [$]arg"
@@ -2674,19 +2694,19 @@ AC_DEFUN([PHP_CHECK_CONFIGURE_OPTIONS],[
   for arg in $ac_configure_args; do
     case $arg in
       --with-*[)]
-      	arg_name="`echo [$]arg | $SED -e 's/--with-/with-/g' -e 's/=.*//g'`"
+        arg_name="`echo [$]arg | $SED -e 's/--with-/with-/g' -e 's/=.*//g'`"
         ;;
       --without-*[)]
-      	arg_name="`echo [$]arg | $SED -e 's/--without-/with-/g' -e 's/=.*//g'`"
+        arg_name="`echo [$]arg | $SED -e 's/--without-/with-/g' -e 's/=.*//g'`"
         ;;
       --enable-*[)]
-      	arg_name="`echo [$]arg | $SED -e 's/--enable-/enable-/g' -e 's/=.*//g'`"
+        arg_name="`echo [$]arg | $SED -e 's/--enable-/enable-/g' -e 's/=.*//g'`"
         ;;
       --disable-*[)]
-      	arg_name="`echo [$]arg | $SED -e 's/--disable-/enable-/g' -e 's/=.*//g'`"
+        arg_name="`echo [$]arg | $SED -e 's/--disable-/enable-/g' -e 's/=.*//g'`"
         ;;
       *[)]
-      	continue
+        continue
         ;;
     esac
     case $arg_name in
@@ -2711,6 +2731,7 @@ AC_DEFUN([PHP_CHECK_CONFIGURE_OPTIONS],[
             enable-zend-multibyte[)] continue;;
           esac 
         fi
+
         is_arg_set=php_[]`echo [$]arg_name | tr 'ABCDEFGHIJKLMNOPQRSTUVWXYZ-' 'abcdefghijklmnopqrstuvwxyz_'`
         if eval test "x\$$is_arg_set" = "x"; then
           PHP_UNKNOWN_CONFIGURE_OPTIONS="$PHP_UNKNOWN_CONFIGURE_OPTIONS
@@ -2744,7 +2765,7 @@ ifelse([$2],[],[AC_MSG_ERROR([Cannot find php_pdo_driver.h.])],[$2])
 
 dnl
 dnl PHP_DETECT_ICC
-dnl
+dnl Detect Intel C++ Compiler and unset $GCC if ICC found
 AC_DEFUN([PHP_DETECT_ICC],
 [
   ICC="no"
@@ -2753,6 +2774,24 @@ AC_DEFUN([PHP_DETECT_ICC],
     ICC="no"
     AC_MSG_RESULT([no]),
     ICC="yes"
+    GCC="no"
+    AC_MSG_RESULT([yes])
+  )
+])
+
+dnl PHP_DETECT_SUNCC
+dnl Detect if the systems default compiler is suncc.
+dnl We also set some usefull CFLAGS if the user didn't set any
+AC_DEFUN([PHP_DETECT_SUNCC],[
+  SUNCC="no"
+  AC_MSG_CHECKING([for suncc])
+  AC_EGREP_CPP([^__SUNPRO_C], [__SUNPRO_C],
+    SUNCC="no"
+    AC_MSG_RESULT([no]),
+    SUNCC="yes"
+    GCC="no"
+    test -n "$auto_cflags" && CFLAGS="-O -xs -xstrconst -zlazyload"
+    GCC=""
     AC_MSG_RESULT([yes])
   )
 ])

@@ -82,14 +82,27 @@ extern "C"
         axis2_char_t * module_ver,
         axis2_char_t * current_def_ver);
 
-	AXIS2_EXTERN axis2_op_t *AXIS2_CALL
-	axis2_core_utils_get_rest_op_with_method_and_location(
-		const axis2_svc_t * svc,
-		const axutil_env_t * env,
-		const axis2_char_t * method,
-		const axis2_char_t * location,
-		int * param_count,
-		axis2_char_t **** params);
+    AXIS2_EXTERN axis2_op_t *AXIS2_CALL                                                                    
+    axis2_core_utils_get_rest_op_with_method_and_location(axis2_svc_t *svc,
+        const axutil_env_t *env,
+        const axis2_char_t *method,
+        const axis2_char_t *location,
+        axutil_array_list_t *param_keys,
+        axutil_array_list_t *param_values);
+
+    AXIS2_EXTERN axis2_status_t AXIS2_CALL
+    axis2_core_utils_prepare_rest_mapping (
+        const axutil_env_t * env,
+        axis2_char_t * url,
+        axutil_hash_t *rest_map,
+        axis2_op_t *op_desc);
+
+    AXIS2_EXTERN axis2_status_t AXIS2_CALL
+    axis2_core_utils_free_rest_map (
+        const axutil_env_t * env,
+        axutil_hash_t *rest_map);
+
+
 
     /** @} */
 

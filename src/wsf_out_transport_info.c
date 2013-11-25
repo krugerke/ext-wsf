@@ -1,5 +1,5 @@
 /*
- * Copyright 2005,2008 WSO2, Inc. http://wso2.com
+ * Copyright 2005,2010 WSO2, Inc. http://wso2.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,6 +67,25 @@ wsf_out_transport_info_impl_set_char_encoding(
     return 0;
 }
 
+axis2_status_t AXIS2_CALL
+wsf_out_transport_info_impl_set_cookie_header(
+    axis2_out_transport_info_t * info,
+    const axutil_env_t * env,
+    const axis2_char_t * cookie_header)
+{
+	return AXIS2_SUCCESS;
+}
+
+axis2_status_t AXIS2_CALL
+wsf_out_transport_info_impl_set_session(
+    axis2_out_transport_info_t * info,
+    const axutil_env_t * env,
+    const axis2_char_t * session_id,
+    const axis2_char_t * session_value)
+{
+	return AXIS2_SUCCESS;
+}
+
 void AXIS2_CALL
 wsf_out_transport_info_impl_free(
     axis2_out_transport_info_t * out_transport_info,
@@ -79,6 +98,8 @@ wsf_out_transport_info_impl_free(
 static const axis2_out_transport_info_ops_t ops_var = {
     wsf_out_transport_info_impl_set_content_type,
     wsf_out_transport_info_impl_set_char_encoding,
+	wsf_out_transport_info_impl_set_cookie_header,
+	wsf_out_transport_info_impl_set_session,
     wsf_out_transport_info_impl_free
 };
 
@@ -158,15 +179,16 @@ axis2_status_t WSF_CALL wsf_http_out_transport_info_set_content_type (
 
     info_impl = AXIS2_INTF_TO_IMPL (info);
 
-    if (NULL != info_impl->encoding)
-	{
-        tmp1 = axutil_stracat (env, content_type, ";charset=");
-        tmp2 = axutil_stracat (env, tmp1, info_impl->encoding);
-        info_impl->response->content_type = axutil_strdup (env, tmp2);
-        AXIS2_FREE (env->allocator, tmp1);
-        AXIS2_FREE (env->allocator, tmp2);
-    } else 
-	{
+    if (NULL != info_impl->encoding && axutil_strstr(content_type, "charset=") == NULL)
+    {
+        	tmp1 = axutil_stracat (env, content_type, ";charset=");
+        	tmp2 = axutil_stracat (env, tmp1, info_impl->encoding);
+        	info_impl->response->content_type = axutil_strdup (env, tmp2);
+        	AXIS2_FREE (env->allocator, tmp1);
+        	AXIS2_FREE (env->allocator, tmp2);
+    }
+    else
+    {
         info_impl->response->content_type = axutil_strdup (env, content_type);
     }
     return AXIS2_SUCCESS;

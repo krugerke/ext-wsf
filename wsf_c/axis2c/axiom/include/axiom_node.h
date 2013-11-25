@@ -102,6 +102,18 @@ extern "C"
         const axutil_env_t * env);
 
     /**
+      * Creates a node struct from a character buffer.
+      * @param env Environment. MUST NOT be NULL, .
+      * @param buffer string. buffer to make the node
+      * @return a pointer to newly created node struct. NULL on error. 
+      */
+    AXIS2_EXTERN axiom_node_t* AXIS2_CALL
+    axiom_node_create_from_buffer(    
+        const axutil_env_t * env,
+        axis2_char_t *buffer);
+
+
+    /**
     * Frees an om node and all of its children. Please note that the attached
     * data_element will also be freed along with the node.  If the node is
     * still attached to a parent, it will be detached first, then freed.
@@ -129,14 +141,26 @@ extern "C"
         axiom_node_t * child);
 
     /**
-    * Detaches given node from the parent and reset the links
+    * Detaches given node from the parent and reset the links. Will recreate "namespace defined in
+    * the parent and used in detached node" within detached node itself
     * @param om_node node to be detached, cannot be NULL.
     * @param env Environment. MUST NOT be NULL, .
-    * @return a pointer to detached node,returns NULL on error with error
-    *           code set to environment's error struct
+    * @return a pointer to detached node,returns NULL on error
     */
     AXIS2_EXTERN axiom_node_t *AXIS2_CALL
     axiom_node_detach(
+        axiom_node_t * om_node,
+        const axutil_env_t * env);
+
+    /**
+     * Detaches given node from the parent and reset the links. will not adjust the namespace as
+     * in the case of axiom_node_detach.
+     * @param om_node node to be detached, cannot be NULL.
+     * @param env Environment. MUST NOT be NULL, .
+     * @return a pointer to detached node,returns NULL on error
+     */
+    AXIS2_EXTERN axiom_node_t *AXIS2_CALL
+    axiom_node_detach_without_namespaces(
         axiom_node_t * om_node,
         const axutil_env_t * env);
 
@@ -353,6 +377,8 @@ extern "C"
     axiom_node_to_string_non_optimized(
         axiom_node_t * om_node,
         const axutil_env_t * env);
+    
+
     /** @} */
 
 #ifdef __cplusplus

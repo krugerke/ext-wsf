@@ -37,30 +37,54 @@ AXIS2_EXTERN axutil_allocator_t *AXIS2_CALL
 axutil_allocator_init(
     axutil_allocator_t * allocator)
 {
-    if (allocator)
-        return allocator;
-
-    else
+    if(!allocator)
     {
-        allocator = (axutil_allocator_t *) malloc(sizeof(axutil_allocator_t));
-        memset(allocator, 0, sizeof(axutil_allocator_t)); 
+        allocator = (axutil_allocator_t *)malloc(sizeof(axutil_allocator_t));
         if (allocator)
         {
+            memset(allocator, 0, sizeof(axutil_allocator_t));
             allocator->malloc_fn = axutil_allocator_malloc_impl;
             allocator->realloc = axutil_allocator_realloc_impl;
             allocator->free_fn = axutil_allocator_free_impl;
+            allocator->global_pool_ref = 0;
+        }
+    }
 
-            return allocator;
+    return allocator;
+}
+
+AXIS2_EXTERN axutil_allocator_t *AXIS2_CALL
+axutil_allocator_clone(
+    axutil_allocator_t * allocator)
+{
+    if(!allocator)
+        return NULL;
+
+    else
+    {
+        axutil_allocator_t* clone = NULL;
+        clone = (axutil_allocator_t *)malloc(sizeof(axutil_allocator_t));
+        memset(clone, 0, sizeof(axutil_allocator_t));
+        if(clone)
+        {
+            clone->malloc_fn = allocator->malloc_fn;
+            clone->realloc = allocator->realloc;
+            clone->free_fn = allocator->free_fn;
+            clone->current_pool = allocator->current_pool;
+            clone->global_pool = allocator->global_pool;
+            clone->local_pool = allocator->local_pool;
+            clone->global_pool_ref = 0;
+
+            return clone;
         }
     }
     return NULL;
 }
-
 AXIS2_EXTERN void AXIS2_CALL
 axutil_allocator_free(
     axutil_allocator_t * allocator)
 {
-    if (allocator)
+    if(allocator)
     {
         allocator->free_fn(allocator, allocator);
     }
@@ -96,8 +120,9 @@ AXIS2_EXTERN void AXIS2_CALL
 axutil_allocator_switch_to_global_pool(
     axutil_allocator_t * allocator)
 {
-    if (!allocator)
+    if(!allocator)
         return;
+    allocator->global_pool_ref++;
     allocator->current_pool = allocator->global_pool;
     return;
 }
@@ -106,9 +131,17 @@ AXIS2_EXTERN void AXIS2_CALL
 axutil_allocator_switch_to_local_pool(
     axutil_allocator_t * allocator)
 {
-    if (!allocator)
+    if(!allocator)
         return;
-    allocator->current_pool = allocator->local_pool;
+    if(allocator->global_pool_ref > 0)
+    {
+        allocator->global_pool_ref--;
+    }
+
+    if(allocator->global_pool_ref == 0)
+    {
+        allocator->current_pool = allocator->local_pool;
+    }
     return;
 }
 

@@ -21,6 +21,7 @@
 #include <axutil_utils.h>
 #include <axutil_utils_defines.h>
 #include <stdio.h>
+#include <sys/types.h>
 #include <sys/timeb.h>
 #include <time.h>
 
@@ -35,7 +36,7 @@ extern "C"
      * @{
      */
     AXIS2_EXTERN int AXIS2_CALL
-    axis2_platform_get_milliseconds(
+    axis2_platform_get_milliseconds(void
     );
 
 #ifdef __cplusplus

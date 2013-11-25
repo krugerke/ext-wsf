@@ -1,5 +1,5 @@
 /*
- * Copyright 2005,2008 WSO2, Inc. http://wso2.com
+ * Copyright 2005,2010 WSO2, Inc. http://wso2.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,6 +90,9 @@ typedef enum ws_input_types
 #define WSF_IN_OUT "IN_OUT"
 
 #define WSF_TO				"to"    /** endpoint uri */
+#define WSF_TRANSPORT_URL   "transportURL"  /** Transport URL */
+
+#define WSF_ADDR_MUST_UNDERSTAND "WSAMustUnderstand" /** must understand property */
 
 #define WSF_SWA     		"swa"
 #define WSF_USE_WSA         "useWSA"
@@ -174,6 +177,10 @@ typedef enum ws_input_types
 #define WSF_HEADER_ACTOR         "actor"
 #define WSF_HEADER_MUST_UNDERSTAND 	"mustUnderstand"
 #define WSF_HEADER_PREFIX        "prefix"
+
+/** http Headers */
+
+#define WSF_HTTP_HEADERS "httpHeaders"
 
 /** security policy */
 #define WSF_POLICY_NAME			"policy"
@@ -375,10 +382,9 @@ typedef struct wsf_request_info
     
 	char *transfer_encoding;
 	
-	/** REST parameter count */
-	int param_count;
-	/** parameters array */
-	char ***params;
+	/** REST parameters */
+	axutil_array_list_t *param_keys;
+	axutil_array_list_t *param_values;
 
 } wsf_request_info_t;
 

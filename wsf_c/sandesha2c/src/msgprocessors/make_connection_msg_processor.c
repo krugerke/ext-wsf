@@ -252,6 +252,7 @@ sandesha2_make_connection_msg_processor_process_in_msg (
     axis2_char_t *dbname = NULL;
     /*const axis2_char_t *wsa_action = NULL;
     axutil_string_t *soap_action = NULL;*/
+    axis2_svc_t *svc = NULL;
 
     AXIS2_LOG_TRACE(env->log, AXIS2_LOG_SI,  
         "[sandesha2]Entry:sandesha2_make_connection_msg_processor_process_in_msg");
@@ -286,6 +287,13 @@ sandesha2_make_connection_msg_processor_process_in_msg (
     }
 
     storage_mgr = sandesha2_utils_get_storage_mgr(env, dbname);
+    if(!storage_mgr)
+    {
+        AXIS2_LOG_ERROR(env->log, AXIS2_LOG_SI, "[sandesha2] Could not create storage manager.");
+        AXIS2_ERROR_SET(env->error, SANDESHA2_ERROR_COULD_NOT_CREATE_STORAGE_MANAGER, 
+                AXIS2_FAILURE);
+        return AXIS2_FAILURE;
+    }
     if(storage_mgr)
     {
         seq_prop_mgr = sandesha2_permanent_seq_property_mgr_create(env, dbname);
@@ -294,7 +302,7 @@ sandesha2_make_connection_msg_processor_process_in_msg (
     }
 
     int_seq_bean = sandesha2_seq_property_mgr_retrieve(seq_prop_mgr, env, seq_id, 
-            SANDESHA2_SEQUENCE_PROPERTY_RMS_INTERNAL_SEQ_ID);
+            SANDESHA2_SEQUENCE_PROPERTY_OUTGOING_INTERNAL_SEQUENCE_ID);
 
     if(int_seq_bean)
     {
@@ -330,6 +338,8 @@ sandesha2_make_connection_msg_processor_process_in_msg (
 
         return AXIS2_SUCCESS;
     }
+
+    svc = axis2_msg_ctx_get_svc(msg_ctx, env);
 
     transport_out = axis2_msg_ctx_get_transport_out_desc(msg_ctx, env);
     if(!transport_out)
@@ -418,7 +428,7 @@ sandesha2_make_connection_msg_processor_process_in_msg (
     msg_id = sandesha2_sender_bean_get_msg_id(sender_bean, env);
     
     continue_sending = sandesha2_msg_retrans_adjuster_adjust_retrans(env, sender_bean, conf_ctx, 
-            storage_mgr, seq_prop_mgr, create_seq_mgr, sender_mgr);
+            storage_mgr, seq_prop_mgr, create_seq_mgr, sender_mgr, svc);
 
     if(!continue_sending)
     {
@@ -483,7 +493,7 @@ sandesha2_make_connection_msg_processor_process_in_msg (
         return AXIS2_SUCCESS;
     }
     
-    prop_bean = sandesha2_utils_get_property_bean(env, axis2_conf_ctx_get_conf(conf_ctx, env));
+    prop_bean = sandesha2_utils_get_property_bean(env, svc);
     if(prop_bean)
     {
         msgs_not_to_send = sandesha2_property_bean_get_msg_types_to_drop(prop_bean, env);

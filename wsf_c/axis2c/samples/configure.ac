@@ -2,7 +2,7 @@ dnl run autogen.sh to generate the configure script.
 
 AC_PREREQ(2.59)
 
-AC_INIT(axis2c-sample-src, 1.5.0)
+AC_INIT(axis2c-sample-src, 1.7.0)
 AC_CANONICAL_SYSTEM
 AM_CONFIG_HEADER(config.h)
 dnl AM_INIT_AUTOMAKE([tar-ustar])
@@ -12,7 +12,6 @@ AC_PREFIX_DEFAULT(/usr/local/axis2c)
 
 dnl Checks for programs.
 AC_PROG_CC
-AC_PROG_CXX
 AC_PROG_CPP
 AC_PROG_LIBTOOL
 AC_PROG_INSTALL
@@ -47,8 +46,10 @@ fi
 dnl Checks for libraries.
 AC_CHECK_LIB(dl, dlopen)
 
-CFLAGS="$CFLAGS -ansi -Wall -D_LARGEFILE64_SOURCE -Wno-implicit-function-declaration"
-LDFLAGS="$LDFLAGS -lpthread"
+CFLAGS="$CFLAGS -D_LARGEFILE64_SOURCE"
+if test "$GCC" = "yes"; then
+       CFLAGS="$CFLAGS -ansi -Wall  -Wno-implicit-function-declaration -g -D_GNU_SOURCE"
+fi
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -85,24 +86,27 @@ AC_ARG_WITH(axis2,
 [  --with-axis2[=PATH]     Find the AXIS2 header files in 'PATH'.
     'PATH' should point to AXIS2 include files location.
     If you omit the '=PATH' part completely, the configure script will search
-    '$(WSFC_HOME)/include/axis2-1.5.0' for AXIS2 headers.],
+    '${WSFC_HOME}/include/axis2-1.7.0' for AXIS2 headers.],
 [ case "$withval" in
   no)
     AC_MSG_RESULT(no)
     ;;
   *)
     AC_MSG_RESULT(yes)
-    dnl Find axiom include dir in the path
+    dnl Find axis2 include dir in the path
     if test -d $withval; then
         axis2inc="-I$withval"
-    dnl else find the axiom include dir in $(WSFC_HOME)/include
-    elif test -d '$(WSFC_HOME)/include'; then
-        axis2inc="-I$(WSFC_HOME)/include/axis2-1.5.0"
+    dnl else find the axiom include dir in ${WSFC_HOME}/include
+    elif test -d "${WSFC_HOME}/include"; then
+        axis2inc="-I${WSFC_HOME}/include/axis2-1.7.0"
     else
         AC_MSG_ERROR(could not find axis2. stop)
     fi
     ;;
   esac ],
+  if test -d "${WSFC_HOME}/include"; then
+  	axis2inc="-I${WSFC_HOME}/include/axis2-1.7.0"
+  fi
   AC_MSG_RESULT(no)
 )
 
@@ -121,22 +125,33 @@ AC_CONFIG_FILES([Makefile \
     server/Makefile \
     server/echo/Makefile \
     server/math/Makefile \
+    server/version/Makefile \
     server/Calculator/Makefile \
     server/notify/Makefile \
     server/sg_math/Makefile \
     server/mtom/Makefile \
+    server/mtom_callback/Makefile \
+    server/session/Makefile \
     client/Makefile \
     client/echo/Makefile \
     client/math/Makefile \
+    client/version/Makefile \
     client/mtom/Makefile \
+    client/mtom_callback/Makefile \
     client/mtom/resources/Makefile \
     client/notify/Makefile \
     client/google/Makefile \
     client/yahoo/Makefile \
     client/amqp/Makefile \
     client/amqp/echo/Makefile \
+    client/amqp/notify/Makefile \
+    client/amqp/mtom/Makefile \
+    client/amqp/mtom/resources/Makefile \
+    client/session/Makefile \
     user_guide/Makefile \
-    user_guide/clients/Makefile
+    user_guide/clients/Makefile \
+    mtom_caching_callback/Makefile \
+    mtom_sending_callback/Makefile    
     ])
     
 AC_OUTPUT

@@ -41,7 +41,7 @@ extern "C"
 #define AXIOM_MIME_PARSER_BUFFER_SIZE (1024 * 1024/2)
 #define AXIOM_MIME_PARSER_MAX_BUFFERS 1000
 
-#define AXIOM_MIME_PARSER_END_OF_MIME_MAX_COUNT 100
+#define AXIOM_MIME_PARSER_END_OF_MIME_MAX_COUNT 1000
 
 
     typedef struct axiom_mime_parser axiom_mime_parser_t;
@@ -59,13 +59,32 @@ extern "C"
       * @param mime_boundary the MIME boundary
       * @return mime parts as a hash map 
       */
-    AXIS2_EXTERN axutil_hash_t *AXIS2_CALL
+    /*AXIS2_EXTERN axutil_hash_t *AXIS2_CALL
     axiom_mime_parser_parse(
         axiom_mime_parser_t * mime_parser,
         const axutil_env_t * env,
         AXIS2_READ_INPUT_CALLBACK,
         void *callback_ctx,
+        axis2_char_t * mime_boundary);*/
+
+    AXIS2_EXTERN axis2_status_t AXIS2_CALL
+    axiom_mime_parser_parse_for_soap(
+        axiom_mime_parser_t * mime_parser,
+        const axutil_env_t * env,
+        AXIS2_READ_INPUT_CALLBACK callback,
+        void *callback_ctx,
         axis2_char_t * mime_boundary);
+
+
+    AXIS2_EXTERN axutil_hash_t *AXIS2_CALL
+    axiom_mime_parser_parse_for_attachments(
+        axiom_mime_parser_t * mime_parser,
+        const axutil_env_t * env,
+        AXIS2_READ_INPUT_CALLBACK callback,
+        void *callback_ctx,
+        axis2_char_t * mime_boundary,
+        void *user_param);
+
 
     /**
       * Returns mime parts as a hash map
@@ -95,7 +114,7 @@ extern "C"
       * @param env Environment. MUST NOT be NULL.
       * @return the length of the SOAP Body
       */
-    AXIS2_EXTERN int AXIS2_CALL
+    AXIS2_EXTERN size_t AXIS2_CALL
     axiom_mime_parser_get_soap_body_len(
         axiom_mime_parser_t * mime_parser,
         const axutil_env_t * env);
@@ -160,6 +179,35 @@ extern "C"
         axiom_mime_parser_t *mime_parser,
         const axutil_env_t *env,
         axis2_char_t *attachment_dir);
+
+
+    /**
+      * Set Caching callback name specified in the axis2.xml
+      * @param mime_parser the pointer for the mime parser struct 
+      * @param env Environment. MUST NOT be NULL.
+      * @param callback_name is string containg the dll path
+      * @return VOID
+      */
+
+
+    AXIS2_EXTERN void AXIS2_CALL
+    axiom_mime_parser_set_caching_callback_name(
+        axiom_mime_parser_t *mime_parser,
+        const axutil_env_t *env,
+        axis2_char_t *callback_name);
+
+
+    AXIS2_EXTERN void AXIS2_CALL
+    axiom_mime_parser_set_mime_boundary(
+        axiom_mime_parser_t *mime_parser,
+        const axutil_env_t *env,
+        axis2_char_t *mime_boundary);
+
+
+    AXIS2_EXTERN axis2_char_t *AXIS2_CALL
+    axiom_mime_parser_get_mime_boundary(
+        axiom_mime_parser_t *mime_parser,
+        const axutil_env_t *env);
 
 
 

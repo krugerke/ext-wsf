@@ -27,6 +27,7 @@
 #include <rp_property.h>
 #include <neethi_assertion.h>
 #include <rp_builders.h>
+#include <axis2_rm_assertion_builder.h>
 
 #ifdef __cplusplus
 extern "C"

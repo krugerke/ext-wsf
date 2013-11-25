@@ -24,6 +24,7 @@
 #include <axutil_env.h>
 #include <axutil_date_time.h>
 #include <axutil_base64_binary.h>
+#include <assert.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -42,6 +43,9 @@ extern "C"
 
 #define AXUTIL_LOG_FILE_SIZE 1024 * 1024 * 32
 #define AXUTIL_LOG_FILE_NAME_SIZE 512
+
+
+#define AXIS2_ASSERT assert
 
     /** This macro is called to check whether structure on which function is called
      *  is NULL and to check whether the environment structure passed is valid.
@@ -222,10 +226,10 @@ extern "C"
     /**
      * Quotes an XML string.
      * Replace '<', '>', and '&' with '&lt;', '&gt;', and '&amp;'.
-     * If quotes is true, then replace '"' with '&quot;'.
+     * If quotes is true, then replace double quote with '&quot;'.
      * @param env pointer to environment struct
      * @param s string to be quoted
-     * @param quotes if AXIS2_TRUE then replace '"' with '&quot;'.
+     * @param quotes if AXIS2_TRUE then replace double quote with '&quot;'.
      * quotes is typically set to true for XML strings that will occur within
      * double quotes -- attribute values.
      * @return Encoded string if there are characters to be encoded, else NULL. 

@@ -1,5 +1,5 @@
 /*
-* Copyright 2005,2008 WSO2, Inc. http://wso2.com
+* Copyright 2005,2010 WSO2, Inc. http://wso2.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -619,7 +619,7 @@ wsf_set_rampart_options (
 		zval **tmp = NULL;
 		wsf_callback_args_t *callback_args = NULL;
 		callback_args = wsf_callback_args_create(env);
-		callback_args->callback_function = Z_STRVAL_PP(token_val);
+		callback_args->callback_function = axutil_strdup(env, Z_STRVAL_PP(token_val));
 		if (zend_hash_find(ht_token, WSF_PASSWORD_CALLBACK_ARGS, sizeof(WSF_PASSWORD_CALLBACK_ARGS),
 			(void **)&tmp) == SUCCESS)
 		{
@@ -1053,7 +1053,7 @@ wsf_password_callback_function (
 	{
         if (Z_TYPE_P (&retval) == IS_STRING) 
 		{
-            val = estrdup (Z_STRVAL (retval));
+            val = strdup (Z_STRVAL (retval));
         }
     }
 	wsf_callback_args_free(callback_args, env);

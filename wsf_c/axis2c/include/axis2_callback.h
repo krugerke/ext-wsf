@@ -94,8 +94,7 @@ extern "C"
      * e.g.
      * <code>
      *      <pre>
-     *          while(!AXIS2_CALL
-     * BACK_GET_COMPLETE(callback, env)
+     *          while(!axis2_callback_get_complete(callback, env)
      *          {
      *             sleep(10);
      *          }
@@ -147,6 +146,30 @@ extern "C"
         axis2_callback_t * callback,
         const axutil_env_t * env,
         axiom_soap_envelope_t * envelope);
+
+    /**
+     * Gets the resulting message context.
+     * @param callback pointer to callback struct
+     * @param env pointer to environment struct
+     * @return result message context if present, else NULL
+     */
+    AXIS2_EXTERN axis2_msg_ctx_t *AXIS2_CALL
+    axis2_callback_get_msg_ctx(
+        const axis2_callback_t * callback,
+        const axutil_env_t * env);
+
+    /**
+     * Sets the message context.
+     * @param callback pointer to callback struct
+     * @param env pointer to environment struct
+     * @param msg_ctx pointer to message context
+     * @return AXIS2_SUCCESS on success, else AXIS2_FAILURE
+     */
+    AXIS2_EXTERN axis2_status_t AXIS2_CALL
+    axis2_callback_set_msg_ctx(
+        axis2_callback_t * callback,
+        const axutil_env_t * env,
+        axis2_msg_ctx_t * msg_ctx);
 
     /**
      * Gets error code representing the error.

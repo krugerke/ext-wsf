@@ -66,7 +66,7 @@ extern "C"
      * @param env pointer to environment struct
      */
     AXIS2_EXTERN int AXIS2_CALL
-    axis2_http_client_recieve_header(
+    axis2_http_client_receive_header(
         axis2_http_client_t * client,
         const axutil_env_t * env);
 
@@ -253,6 +253,22 @@ extern "C"
     AXIS2_EXTERN axis2_bool_t AXIS2_CALL
     axis2_http_client_get_doing_mtom(
         const axis2_http_client_t * client,
+        const axutil_env_t * env);
+
+    AXIS2_EXTERN axis2_status_t AXIS2_CALL
+    axis2_http_client_set_mtom_sending_callback_name(
+        axis2_http_client_t * client,
+        const axutil_env_t * env,
+        axis2_char_t *callback_name);
+
+    AXIS2_EXTERN axis2_status_t AXIS2_CALL
+    axis2_http_client_consume_stream(
+        axis2_http_client_t * client,
+        const axutil_env_t * env);
+
+    AXIS2_EXTERN axis2_status_t AXIS2_CALL
+    axis2_http_client_reset(
+        axis2_http_client_t * client,
         const axutil_env_t * env);
 
 

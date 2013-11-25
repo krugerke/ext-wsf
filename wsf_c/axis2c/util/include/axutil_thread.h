@@ -136,8 +136,41 @@ extern "C"
      * force the current thread to yield the processor
      */
     AXIS2_EXTERN void AXIS2_CALL
-    axutil_thread_yield(
+    axutil_thread_yield(void
     );
+
+    /**
+     * function is used to allocate a new key. This key now becomes valid for all threads in our process. 
+     * When a key is created, the value it points to defaults to NULL. Later on each thread may change 
+     * its copy of the value as it wishes.
+     */
+    AXIS2_EXTERN axis2_status_t AXIS2_CALL
+    axutil_thread_key_create(
+        axutil_threadkey_t * axis2_key);
+    /**
+     * This function is used to get the value of a given key
+     * @return void*. A key's value is simply a void pointer (void*)
+     */
+    AXIS2_EXTERN void *AXIS2_CALL
+    axutil_thread_getspecific(
+        axutil_threadkey_t * axis2_key);
+
+    /**
+     * This function is used to get the value of a given key
+     * @param keys value. A key's value is simply a void pointer (void*), so we can 
+     *        store in it anything that we want
+     */
+    AXIS2_EXTERN axis2_status_t AXIS2_CALL
+    axutil_thread_setspecific(
+        axutil_threadkey_t * axis2_key,
+        void *value);
+
+    /**
+     * This function is used free the tls key.
+     */
+    AXIS2_EXTERN void AXIS2_CALL
+    axutil_thread_key_free(
+        axutil_threadkey_t * axis2_key);
 
     /**
      * Initialize the control variable for axutil_thread_once.
@@ -188,7 +221,7 @@ extern "C"
      * Create and initialize a mutex that can be used to synchronize threads.
      * @param allocator Memory allocator to allocate memory for the mutex
      * @warning Be cautious in using AXIS2_THREAD_MUTEX_DEFAULT.  While this is the
-     * most optimial mutex based on a given platform's performance charateristics,
+     * most optimal mutex based on a given platform's performance characteristics,
      * it will behave as either a nested or an unnested lock.
      */
     AXIS2_EXTERN axutil_thread_mutex_t *AXIS2_CALL

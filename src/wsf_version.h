@@ -1,5 +1,5 @@
 /**
- * Copyright 2005,2008 WSO2, Inc. http://wso2.com
+ * Copyright 2005,2010 WSO2, Inc. http://wso2.com
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -23,13 +23,13 @@
 #define WSF_MAJOR_VERSION 2
 
 /** minor version */
-#define WSF_MINOR_VERSION 0
+#define WSF_MINOR_VERSION 1
 
 /** patch level */ 
 #define WSF_PATCH_VERSION 0
 
 /** The formatted string of WSF version */
-#define WSF_VERSION_STRING "2.0.0"
+#define WSF_VERSION_STRING "2.1.0"
 
 /* macro for Win32 .rc files using numeric csv representation */
 #define WSF_VERSION_STRING_CSV WSF_MAJOR_VERSION ##, \

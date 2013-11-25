@@ -10,15 +10,18 @@ CFLAGS = /nologo /w /D "WIN32" /D "_WINDOWS" /D "PHP_WIN32" /D "COMPILE_DL_WSF" 
 LDFLAGS = /nologo /LIBPATH:.\..\$(WSFPHP_BIN_DIR)\wsf_c\lib /LIBPATH:$(PHP_BIN_DIR)\dev \
 	  /LIBPATH:$(LIBXML2_BIN_DIR)\lib
 
-LIBS = axutil.lib axis2_engine.lib axis2_parser.lib \
-       axiom.lib libxml2.lib mod_rampart.lib axis2_http_sender.lib \
-       neethi_util.lib neethi.lib sandesha2.lib sandesha2_client.lib libxml2.lib wsock32.lib
+LIBS = axutil.lib axis2_engine.lib axis2_parser.lib axiom.lib rampart.lib axis2_http_sender.lib \
+       neethi_util.lib neethi.lib sandesha2.lib sandesha2_client.lib wsock32.lib
+
+!if "$(ENABLE_LIBXML2)" =="1"
+LIBS=$(LIBS) libxml2.lib
+!endif
 
 INCLUDE_PATH = /I$(PHP_SRC_DIR) /I$(PHP_SRC_DIR)\main /I$(PHP_SRC_DIR)\regex \
 	       /I$(PHP_SRC_DIR)\ext /I$(PHP_SRC_DIR)\sapi /I$(PHP_SRC_DIR)\Zend \
 	       /I$(PHP_SRC_DIR)\TSRM /I.\..\$(WSFPHP_BIN_DIR)\wsf_c\include \
-	       /I$(LIBXML2_BIN_DIR)\include /I$(BINDLIB_DIR)\include \
-	       /I$(ICONV_BIN_DIR)\include /I$(OPENSSL_BIN_DIR)\include
+	       /I$(LIBXML2_BIN_DIR)\include /I$(ICONV_BIN_DIR)\include \
+	       /I$(OPENSSL_BIN_DIR)\include
 
 
 !if "$(DEBUG)" == "1"
@@ -53,6 +56,9 @@ wsf.dll :
 	@cl.exe $(CFLAGS) $(INCLUDE_PATH) $(WSFPHP_SRC) /Fointdir\ /c
 	@rc.exe /r /fo "intdir/wsf.res" wsf.rc
 	@link.exe $(LDFLAGS) intdir\*.obj intdir\wsf.res $(LIBS) /DLL  /OUT:.\..\$(WSFPHP_BIN_DIR)\wsf.dll
+	if exist .\..\$(WSFPHP_BIN_DIR)\wsf.dll.manifest mt.exe -manifest .\..\$(WSFPHP_BIN_DIR)\wsf.dll.manifest -outputresource:.\..\$(WSFPHP_BIN_DIR)\wsf.dll;2
+	if exist .\..\$(WSFPHP_BIN_DIR)\wsf.lib del .\..\$(WSFPHP_BIN_DIR)\wsf.lib
+	if exist .\..\$(WSFPHP_BIN_DIR)\wsf.exp del .\..\$(WSFPHP_BIN_DIR)\wsf.exp
 
 wsfphp: wsf.dll
 

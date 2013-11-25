@@ -10153,7 +10153,7 @@ static int vxprintf(
   char buf[etBUFSIZE];       /* Conversion buffer */
   char prefix;               /* Prefix character.  "+" or "-" or " " or '\0'. */
   etByte errorflag = 0;      /* True if an error is encountered */
-  etByte xtype;              /* Conversion paradigm */
+  etByte xtype = 0;              /* Conversion paradigm */
   char *zExtra;              /* Extra memory used for etTCLESCAPE conversions */
   static const char spaces[] =
    "                                                                         ";
@@ -17117,7 +17117,8 @@ static int unixRandomness(sqlite3_vfs *pVfs, int nBuf, char *zBuf){
       pid = getpid();
       memcpy(&zBuf[sizeof(t)], &pid, sizeof(pid));
     }else{
-      read(fd, zBuf, nBuf);
+      int ret = -1;
+      ret = read(fd, zBuf, nBuf);
       close(fd);
     }
   }
@@ -50406,6 +50407,7 @@ SQLITE_PRIVATE void sqlite3DeleteFrom(
   int triggers_exist = 0;      /* True if any triggers exist */
 #endif
 
+  sContext.zAuthContext = NULL;
   sContext.pParse = 0;
   db = pParse->db;
   if( pParse->nErr || db->mallocFailed ){
@@ -61502,6 +61504,7 @@ SQLITE_PRIVATE void sqlite3Update(
   int newIdx      = -1;  /* index of trigger "new" temp table       */
   int oldIdx      = -1;  /* index of trigger "old" temp table       */
 
+  sContext.zAuthContext = NULL;
   sContext.pParse = 0;
   db = pParse->db;
   if( pParse->nErr || db->mallocFailed ){

@@ -357,9 +357,23 @@ extern "C"
      */
 
     AXIS2_EXTERN axis2_status_t AXIS2_CALL
-    rampart_context_set_ttl(rampart_context_t *rampart_context,
-                            const axutil_env_t *env,
-                            int ttl);
+    rampart_context_set_ttl(
+        rampart_context_t *rampart_context,
+        const axutil_env_t *env,
+        int ttl);
+
+    AXIS2_EXTERN axis2_status_t AXIS2_CALL
+    rampart_context_set_need_millisecond_precision(
+        rampart_context_t *rampart_context,
+        const axutil_env_t *env,
+        axis2_bool_t need_millisecond_precision);
+
+    AXIS2_EXTERN axis2_status_t AXIS2_CALL
+    rampart_context_set_clock_skew_buffer(
+        rampart_context_t *rampart_context,
+        const axutil_env_t *env,
+        int skew_buffer);
+
     /**
      *
      * @param rampart_context
@@ -584,6 +598,17 @@ extern "C"
     rampart_context_get_ttl(
         rampart_context_t *rampart_context,
         const axutil_env_t *env);
+
+    AXIS2_EXTERN axis2_bool_t AXIS2_CALL
+    rampart_context_get_need_millisecond_precision(
+        rampart_context_t *rampart_context,
+        const axutil_env_t *env);
+
+    AXIS2_EXTERN int AXIS2_CALL
+    rampart_context_get_clock_skew_buffer(
+        rampart_context_t *rampart_context,
+        const axutil_env_t *env);
+
     /**
      *
      * @param rampart_context
@@ -1138,18 +1163,29 @@ extern "C"
     rampart_context_get_enc_asym_algo(
         rampart_context_t *rampart_context,
         const axutil_env_t *env);
+
     /**
-     *
      * @param rampart_context
      * @param env pointer to environment struct,Must not be NULL.
      * @returns status of the op.                                                                                                        
      * AXIS2_SUCCESS on success and AXIS2_FAILURE on error          
      */
-
     AXIS2_EXTERN axis2_char_t *AXIS2_CALL
     rampart_context_get_asym_sig_algo(
         rampart_context_t *rampart_context,
         const axutil_env_t *env);
+
+    /**
+     * @param rampart_context
+     * @param env pointer to environment struct,Must not be NULL.
+     * @returns status of the op.
+     * AXIS2_SUCCESS on success and AXIS2_FAILURE on error
+     */
+    AXIS2_EXTERN axis2_char_t *AXIS2_CALL
+    rampart_context_get_sym_sig_algo(
+        rampart_context_t *rampart_context,
+        const axutil_env_t *env);
+
     /**
      *
      * @param rampart_context
@@ -1344,6 +1380,17 @@ extern "C"
     rampart_context_set_ttl_from_file(
         rampart_context_t *rampart_context,
         const axutil_env_t *env);
+
+    AXIS2_EXTERN axis2_status_t AXIS2_CALL
+    rampart_context_set_clock_skew_buffer_from_file(
+        rampart_context_t *rampart_context,
+        const axutil_env_t *env);
+
+    AXIS2_EXTERN axis2_status_t AXIS2_CALL
+    rampart_context_set_need_millisecond_precision_from_file(
+        rampart_context_t *rampart_context,
+        const axutil_env_t *env);
+
     /**
      *
      * @param rampart_context
@@ -1847,6 +1894,23 @@ extern "C"
     rampart_context_get_validate_security_context_token_fn(
         rampart_context_t *rampart_context,
         const axutil_env_t *env);
+
+    /**
+     * check whether different keys are needed for encryption and signature
+     * @param env pointer to environment struct
+     * @param rampart_context rampart context
+     * @return AXIS2_TRUE if different keys are needed. AXIS2_FALSE otherwise.
+     */
+    AXIS2_EXTERN axis2_bool_t AXIS2_CALL
+    rampart_context_is_different_session_key_for_enc_and_sign(
+        const axutil_env_t *env,
+        rampart_context_t *rampart_context);
+
+    AXIS2_EXTERN axis2_status_t AXIS2_CALL
+rampart_context_set_receiver_certificate_file(
+	rampart_context_t *rampart_context,
+	const axutil_env_t *env,
+	axis2_char_t *receiver_certificate_file);
 
 
     

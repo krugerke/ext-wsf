@@ -43,6 +43,7 @@
 #include <rampart_sec_processed_result.h>
 #include <rampart_sct_provider_utility.h>
 #include <rampart_saml_token.h>
+#include <axiom_util.h>
 
 /*Private functions*/
 
@@ -179,6 +180,11 @@ rampart_sig_prepare_key_info_for_asym_binding(const axutil_env_t *env,
             status = rampart_token_build_security_token_reference(
                          env, key_info_node, cert, RTBP_KEY_IDENTIFIER);
         }
+        else if(axutil_strcmp(eki, RAMPART_STR_THUMB_PRINT) == 0)
+        {
+            status = rampart_token_build_security_token_reference(
+                        env, key_info_node, cert, RTBP_THUMBPRINT);
+        }
         else
         {
             AXIS2_LOG_ERROR(env->log, AXIS2_LOG_SI,
@@ -265,7 +271,7 @@ rampart_sig_pack_for_sym(const axutil_env_t *env,
             if(token_id)
             {
                 int key_usage = OXS_KEY_USAGE_SESSION;
-                if(is_different_session_key_for_encryption_and_signing(env, rampart_context))
+                if(rampart_context_is_different_session_key_for_enc_and_sign(env, rampart_context))
                     key_usage = OXS_KEY_USAGE_SIGNATURE_SESSION;
 
                 session_key = rampart_context_get_key(rampart_context, env, token_id);
@@ -415,6 +421,8 @@ rampart_sig_sign_message(
         nodes_to_sign = NULL;
         return AXIS2_SUCCESS;
     }
+
+#if 0 /* this block is moved to rampart_context_get_nodes_to_sign */
     /*If Timestamp and usernametoken are in the message we should sign them.*/
 
     if(rampart_context_get_require_timestamp(rampart_context, env))
@@ -469,6 +477,7 @@ rampart_sig_sign_message(
             }
         }
     }
+#endif
 
     /*Now we have to check whether a token is specified.*/
     token = rampart_context_get_token(rampart_context, env, AXIS2_FALSE, server_side, AXIS2_FALSE);
@@ -531,7 +540,7 @@ rampart_sig_sign_message(
             axiom_node_t *security_context_token_node = NULL;
             /*include the security context token and set the AttachedReference to key_reference_node*/
             security_context_token_node = oxs_axiom_get_node_by_local_name(env, sec_node,  OXS_NODE_SECURITY_CONTEXT_TOKEN);
-            if((!security_context_token_node) || (is_different_session_key_for_encryption_and_signing(env, rampart_context)))
+            if((!security_context_token_node) || (rampart_context_is_different_session_key_for_enc_and_sign(env, rampart_context)))
             {
                 security_context_token_node = sct_provider_get_token(env, token, AXIS2_FALSE, rampart_context, msg_ctx);
                 if(!security_context_token_node)
@@ -722,7 +731,7 @@ rampart_sig_sign_message(
                 if(!encrypted_key_node)
                 {
                     /*There is no EncryptedKey so generate one*/
-                    status = rampart_enc_encrypt_session_key(env, session_key, msg_ctx, rampart_context, soap_envelope, sec_node, NULL );
+                    status = rampart_enc_encrypt_session_key(env, session_key, msg_ctx, rampart_context, sec_node, NULL );
                     if(AXIS2_FAILURE == status)
                     {
                         AXIS2_LOG_ERROR(env->log, AXIS2_LOG_SI, "[rampart][rampart_signature] Cannot encrypt the session key " );
@@ -1108,3 +1117,6 @@ rampart_sig_endorse_sign(
 
     return status;
 }
+
+
+

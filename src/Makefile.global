@@ -11,7 +11,7 @@ all: $(all_targets)
 	@echo "Don't forget to run 'make test'."
 	@echo
 	
-build-modules: $(PHP_MODULES)
+build-modules: $(PHP_MODULES) $(PHP_ZEND_EX)
 
 libphp$(PHP_MAJOR_VERSION).la: $(PHP_GLOBAL_OBJS) $(PHP_SAPI_OBJS)
 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -rpath $(phptempdir) $(EXTRA_LDFLAGS) $(LDFLAGS) $(PHP_RPATHS) $(PHP_GLOBAL_OBJS) $(PHP_SAPI_OBJS) $(EXTRA_LIBS) $(ZEND_EXTRA_LIBS) -o $@
@@ -73,57 +73,32 @@ PHP_TEST_SHARED_EXTENSIONS =  ` \
 		for i in $(PHP_MODULES)""; do \
 			. $$i; $(top_srcdir)/build/shtool echo -n -- " -d extension=$$dlname"; \
 		done; \
+	fi; \
+	if test "x$(PHP_ZEND_EX)" != "x"; then \
+		for i in $(PHP_ZEND_EX)""; do \
+			. $$i; $(top_srcdir)/build/shtool echo -n -- " -d $(ZEND_EXT_TYPE)=$(top_builddir)/modules/$$dlname"; \
+		done; \
 	fi`
+PHP_DEPRECATED_DIRECTIVES_REGEX = '^(define_syslog_variables|register_(globals|long_arrays)?|safe_mode|magic_quotes_(gpc|runtime|sybase)?|(zend_)?extension(_debug)?(_ts)?)[\t\ ]*='
 
 test: all
 	-@if test ! -z "$(PHP_EXECUTABLE)" && test -x "$(PHP_EXECUTABLE)"; then \
+		INI_FILE=`$(PHP_EXECUTABLE) -d 'display_errors=stderr' -r 'echo php_ini_loaded_file();' 2> /dev/null`; \
+		if test "$$INI_FILE"; then \
+			$(EGREP) -h -v $(PHP_DEPRECATED_DIRECTIVES_REGEX) "$$INI_FILE" > $(top_builddir)/tmp-php.ini; \
+		else \
+			echo > $(top_builddir)/tmp-php.ini; \
+		fi; \
+		INI_SCANNED_PATH=`$(PHP_EXECUTABLE) -d 'display_errors=stderr' -r '$$a = explode(",\n", trim(php_ini_scanned_files())); echo $$a[0];' 2> /dev/null`; \
+		if test "$$INI_SCANNED_PATH"; then \
+			INI_SCANNED_PATH=`$(top_srcdir)/build/shtool path -d $$INI_SCANNED_PATH`; \
+			$(EGREP) -h -v $(PHP_DEPRECATED_DIRECTIVES_REGEX) "$$INI_SCANNED_PATH"/*.ini >> $(top_builddir)/tmp-php.ini; \
+		fi; \
 		TEST_PHP_EXECUTABLE=$(PHP_EXECUTABLE) \
 		TEST_PHP_SRCDIR=$(top_srcdir) \
 		CC="$(CC)" \
-			$(PHP_EXECUTABLE) $(PHP_TEST_SETTINGS) $(top_srcdir)/run-tests.php -U -d extension_dir=modules/ $(PHP_TEST_SHARED_EXTENSIONS) tests/; \
-	elif test ! -z "$(SAPI_CLI_PATH)" && test -x "$(SAPI_CLI_PATH)"; then \
-		INI_FILE=`$(top_builddir)/$(SAPI_CLI_PATH) -r 'echo php_ini_loaded_file();'`; \
-		if test "$$INI_FILE"; then \
-			$(EGREP) -v '^extension[\t\ ]*=' "$$INI_FILE" > $(top_builddir)/tmp-php.ini; \
-		else \
-			echo > $(top_builddir)/tmp-php.ini; \
-		fi; \
-		TEST_PHP_EXECUTABLE=$(top_builddir)/$(SAPI_CLI_PATH) \
-		TEST_PHP_SRCDIR=$(top_srcdir) \
-		CC="$(CC)" \
-			$(top_builddir)/$(SAPI_CLI_PATH) $(PHP_TEST_SETTINGS) $(top_srcdir)/run-tests.php -c $(top_builddir)/tmp-php.ini -U -d extension_dir=$(top_builddir)/modules/ $(PHP_TEST_SHARED_EXTENSIONS) $(TESTS); \
-	else \
-		echo "ERROR: Cannot run tests without CLI sapi."; \
-	fi
-
-utest: all
-	-@if test ! -z "$(SAPI_CLI_PATH)" && test -x "$(SAPI_CLI_PATH)"; then \
-		INI_FILE=`$(top_builddir)/$(SAPI_CLI_PATH) -r 'echo php_ini_loaded_file();'`; \
-		if test "$$INI_FILE"; then \
-			$(EGREP) -v '^extension[\t\ ]*=' "$$INI_FILE" > $(top_builddir)/tmp-php.ini; \
-		else \
-			echo > $(top_builddir)/tmp-php.ini; \
-		fi; \
-		TEST_PHP_EXECUTABLE=$(top_builddir)/$(SAPI_CLI_PATH) \
-		TEST_PHP_SRCDIR=$(top_srcdir) \
-		CC="$(CC)" \
-			$(top_builddir)/$(SAPI_CLI_PATH) $(PHP_TEST_SETTINGS) $(top_srcdir)/run-tests.php -c $(top_builddir)/tmp-php.ini -u -d extension_dir=$(top_builddir)/modules/ $(PHP_TEST_SHARED_EXTENSIONS) $(TESTS); \
-	else \
-		echo "ERROR: Cannot run tests without CLI sapi."; \
-	fi
-
-ntest: all
-	-@if test ! -z "$(SAPI_CLI_PATH)" && test -x "$(SAPI_CLI_PATH)"; then \
-		INI_FILE=`$(top_builddir)/$(SAPI_CLI_PATH) -r 'echo php_ini_loaded_file();'`; \
-		if test "$$INI_FILE"; then \
-			$(EGREP) -v '^extension[\t\ ]*=' "$$INI_FILE" > $(top_builddir)/tmp-php.ini; \
-		else \
-			echo > $(top_builddir)/tmp-php.ini; \
-		fi; \
-		TEST_PHP_EXECUTABLE=$(top_builddir)/$(SAPI_CLI_PATH) \
-		TEST_PHP_SRCDIR=$(top_srcdir) \
-		CC="$(CC)" \
-			$(top_builddir)/$(SAPI_CLI_PATH) $(PHP_TEST_SETTINGS) $(top_srcdir)/run-tests.php -c $(top_builddir)/tmp-php.ini -N -d extension_dir=$(top_builddir)/modules/ $(PHP_TEST_SHARED_EXTENSIONS) $(TESTS); \
+			$(PHP_EXECUTABLE) -n -c $(top_builddir)/tmp-php.ini $(PHP_TEST_SETTINGS) $(top_srcdir)/run-tests.php -n -c $(top_builddir)/tmp-php.ini -d extension_dir=$(top_builddir)/modules/ $(PHP_TEST_SHARED_EXTENSIONS) $(TESTS); \
+		rm $(top_builddir)/tmp-php.ini; \
 	else \
 		echo "ERROR: Cannot run tests without CLI sapi."; \
 	fi
@@ -137,9 +112,8 @@ clean:
 	rm -f libphp$(PHP_MAJOR_VERSION).la $(SAPI_CLI_PATH) $(OVERALL_TARGET) modules/* libs/*
 
 distclean: clean
-	rm -f config.cache config.log config.status Makefile.objects Makefile.fragments libtool main/php_config.h stamp-h php5.spec sapi/apache/libphp$(PHP_MAJOR_VERSION).module buildmk.stamp
+	rm -f Makefile config.cache config.log config.status Makefile.objects Makefile.fragments libtool main/php_config.h stamp-h sapi/apache/libphp$(PHP_MAJOR_VERSION).module buildmk.stamp
 	$(EGREP) define'.*include/php' $(top_srcdir)/configure | $(SED) 's/.*>//'|xargs rm -f
-	find . -name Makefile | xargs rm -f
 
 .PHONY: all clean install distclean test
 .NOEXPORT:

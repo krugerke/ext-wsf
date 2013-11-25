@@ -69,11 +69,11 @@ remember to prefix the subject with [Axis2].</p>
 <ul>
 2.3.1 <a href="#2.3.1">Setting Build Options</a><br />
 <ul>
-(a) <a href="#2.3.1.a">Setting zlib Location</a><br />
-(b) <a href="#2.3.1.b">Enable Guththila</a><br />
-(c) <a href="#2.3.1.c">Enable libxml2</a><br />
-(d) <a href="#2.3.1.d">Enable SSL Support</a><br />
-(e) <a href="#2.3.1.e">Enable libcurl</a><br />
+(a) <a href="#2.3.1.a">Enable Guththila</a><br />
+(b) <a href="#2.3.1.b">Enable libxml2</a><br />
+(c) <a href="#2.3.1.c">Enable SSL Support</a><br />
+(d) <a href="#2.3.1.d">Enable libcurl</a><br />
+(e) <a href="#2.3.1.e">Setting zlib Location</a><br />
 </ul>
 2.3.2 <a href="#2.3.2">Compiling the Source</a><br />
 </ul>
@@ -102,7 +102,12 @@ Module (mod_axis2)</a><br />
 Server) Integration Module (mod_axis2_IIS)</a><br />
 <ul>
 4.1 <a href="#4.1">Building mod_axis2_IIS from Source</a><br />
-4.2 <a href="#4.2">Deploying in the IIS</a><br />
+4.2 <a href="#4.2">Deploying in the IIS</a><br /><br />
+</ul>
+5. <a href="#5">Using Axis2/C with CGI</a><br />
+<ul>
+5.1 <a href="#5.1">Deploying in Apache2</a><br />
+5.2 <a href="#5.2">Deploying in IIS</a><br />
 </ul>
 </ul>
 </div>
@@ -113,7 +118,7 @@ Server) Integration Module (mod_axis2_IIS)</a><br />
 <h3>1.1 Setting up Prerequisites</h3>
 <div class="subsection"><a name="1.1.1"></a>
 <h4>1.1.1 Mandatory</h4>
-<p>(a) zlib - <a class="externalLink" href="http://www.zlib.net/">http://www.zlib.net/</a></p>
+<p>By default Axis2/C is not dependent on any other software libraries.</p>
 </div>
 <div class="subsection"><a name="1.1.2"></a>
 <h4>1.1.2 Optional</h4>
@@ -121,7 +126,9 @@ Server) Integration Module (mod_axis2_IIS)</a><br />
 <br />
 (b) libiconv - <a class="externalLink" href="http://www.gnu.org/software/libiconv/">http://www.gnu.org/software/libiconv/</a>
 <br />
-(c) Apache Qpid - </p>
+(c) zlib - <a class="externalLink" href="http://www.zlib.net/">http://www.zlib.net/</a>
+<br />
+(d) Apache Qpid - </p>
 <ul>
 You need to have Qpid libraries installed on your
 machine if you are going to use AMQP transport. It is imperative that
@@ -236,7 +243,7 @@ To build the samples:<br />
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${WSFC_HOME}/lib/</code><br />
 <code>$ cd samples</code><br />
 <code>$ ./configure --prefix=${WSFC_HOME}
---with-axis2=${WSFC_HOME}/include/axis2-1.4.0</code><br />
+--with-axis2=${WSFC_HOME}/include/axis2-1.7.0</code><br />
 <code>$ make</code><br />
 <code>$ make install</code><br />
 <br />
@@ -298,7 +305,7 @@ LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${WSFC_HOME}/lib</code><br />
 When the axis2_http_server is up and running, you can run the sample
 clients in a new shell as follows.<br />
 <br />
-<code>$ cd ${WSFC_HOME}/bin/samples</code><br />
+<code>$ cd ${WSFC_HOME}/samples/bin</code><br />
 <code>$ ./echo</code><br />
 <br />
 This will invoke the echo service.<br />
@@ -353,7 +360,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${WSFC_HOME}/lib</code>
 When the axis2_amqp_server is up and running, you can run the sample
 clients in a new shell as follows.<br />
 <br />
-<code>$ cd ${WSFC_HOME}/bin/samples/amqp</code><br />
+<code>$ cd ${WSFC_HOME}/sample/bin/amqp</code><br />
 <code>$ ./echo_blocking</code><br />
 <br />
 This will invoke the echo service.<br />
@@ -384,9 +391,6 @@ Microsoft VS Express2005 Edition and Platform
 SDK from Microsoft website. You need to add the path to Platform SDK
 Include and Lib folders to the makefile in order for you to compile the
 source.<br />
-<br />
-(b) zlib [<a class="externalLink" href="http://www.zlatkovic.com/pub/libxml">http://www.zlatkovic.com/pub/libxml</a>
-version &gt;= zlib-1.2.3.win32]
 </div>
 <div class="subsection"><a name="2.1.2"></a>
 <h4>2.1.2 Optional</h4>
@@ -394,6 +398,8 @@ version &gt;= zlib-1.2.3.win32]
 version &gt;= libxml2-2.6.20.win32]<br />
 (b) iconv [<a class="externalLink" href="http://www.zlatkovic.com/pub/libxml">http://www.zlatkovic.com/pub/libxml</a>
 version &gt;= iconv-1.9.1.win32]<br />
+(c) zlib [<a class="externalLink" href="http://www.zlatkovic.com/pub/libxml">http://www.zlatkovic.com/pub/libxml</a>
+version &gt;= zlib-1.2.3.win32]<br />
 </div>
 </div>
 <div class="subsection"><a name="2.2"></a>
@@ -401,19 +407,18 @@ version &gt;= iconv-1.9.1.win32]<br />
 Extract the binary distribution to a folder of your choice.(example:
 C:\axis2c)<br />
 The C:\axis2c folder structure is as follows:<br />
-<p><img alt="Figure: c:\axis2c Folder Structure" src="images/binary_folder_structure.jpg" /></p>
-<p><em>The above folders contain the following files:</em></p>
 <ul>
 <li>bin - server and other executables</li>
-<li>bin\samples - client samples </li>
+<li>samples\bin - client sample binaries </li>
+<li>samples\lib - sample libraries </li>
+<li>samples\src - sample sources </li>
 <li>lib - library modules</li>
 <li>services - deployed services</li>
 <li>modules - deployed modules</li>
 <li>include - all Include files of Axis2/C</li>
 <li>logs - system and client logs are written to this folder</li>
 </ul>
-Copy the downloaded zlib1.dll to C:\axis2c\lib.You might
-optionally require to copy the iconv.dll and libxml2.dll as well.<br />
+Optionally you might require to copy the iconv.dll, libxml2.dll and zlib1.dll to C:\axis2c\lib as well.<br />
 (Or you can have these dll's in some other place and add that location
 to PATH environment variable)
 </div>
@@ -423,7 +428,7 @@ to PATH environment variable)
 <h4>2.3.1 Setting Build Options</h4>
 <p>Please edit the
 &lt;source_distribution&gt;\build\win32\configure.in file
-to set the following build options.</p>
+to set the following build options. These are optional</p>
 <div class="subsection"><a name="2.3.1.a"></a>
 <h4>(a) Setting zlib Location</h4>
 Set the ZLIB_BIN_DIR to the location where zlib is installed to<br />
@@ -488,12 +493,11 @@ directory named deploy under the build directory,
 <li><code>C:\axis2c\build\win32&gt;nmake install</code></li>
 </ul>
 </li>
-<li>The deploy folder structure is as follows:</li>
-<p><img alt="Figure: deploy Folder Structure" src="images/folder_structure.jpg" /></p>
-<p><em>The above folders contain the following files:</em></p>
+<li><p>The deploy folder structure is as follows:</p></li>
 <ul>
 <li>bin - server and other executable</li>
-<li>bin\samples - client samples</li>
+<li>samples\bin - client sample binaries</li>
+<li>samples\lib - client samples libraries</li>
 <li>lib - library modules</li>
 <li>services - deployed services</li>
 <li>modules - deployed modules</li>
@@ -511,10 +515,8 @@ the server and samples.<br />
 Set the variable WSFC_HOME to the deploy folder (C:\axis2c)<br />
 Add the path to lib directory to the PATH variable (%WSFC_HOME%\lib)<br />
 <br />
-Copy iconv.dll and zlib1.dll to the %WSFC_HOME%\lib folder.<br />
-<br />
-You might optionally require to copy the libxml2.dll to the
-%WSFC_HOME%\lib folder.<br />
+Copy iconv.dll, zlib1.dll, libxml2.dll to the %WSFC_HOME%\lib folder. This is 
+optional.<br />
 <div class="subsection"><a name="2.4.1"></a>
 <h4>2.4.1 HTTP transport</h4>
 <div class="subsection"><a name="2.4.1.a"></a>
@@ -535,11 +537,11 @@ behaviour. Type 'axis2_http_server.exe -h' to learn about the usage
 <div class="subsection"><a name="2.4.1.b"></a>
 <h4>(b) Clients</h4>
 Now you can run any sample client deployed under
-%WSFC_HOME%\bin\samples\<br />
+%WSFC_HOME%\samples\bin<br />
 <br />
 Example:<br />
 <ul>
-<code>&gt; cd %WSFC_HOME%\bin\samples</code><br />
+<code>&gt; cd %WSFC_HOME%\samples\bin</code><br />
 <code>&gt; echo.exe</code>
 </ul>
 </div>
@@ -595,12 +597,12 @@ C:\axis2c\build\deploy\lib </div>
 NOTE : To do the following tasks, you might need super user privileges
 on your machine. If you are using the binary release of Axis2/C, please note that it is built with Apache 2.2.<br />
 <br />
-Copy the mod_axis2 (libmod_axis2.so.0.3.1 on Linux and mod_axis2.dll on
+Copy the mod_axis2 (libmod_axis2.so.0.6.0 on Linux and mod_axis2.dll on
 Windows) to "&lt;apache2 modules directory&gt;" as
 mod_axis2.so <br />
 <br />
 Example:<br />
-<code>cp $WSFC_HOME/lib/libmod_axis2.so.0.3.1
+<code>cp $WSFC_HOME/lib/libmod_axis2.so.0.6.0
 /usr/lib/apache2/modules/mod_axis2.so </code>(on Linux)<br />
 <code>copy C:\axis2c\build\deploy\lib\mod_axis2.dll
 C:\Apache2\modules\mod_axis2.so </code>(on Windows)<br />
@@ -733,6 +735,58 @@ mod_axis2_IIS.dll</li>
 in the IIS 5.1 case.</p>
 <p>Note: If the Axis2/C failed to load, verify that Axis2/C and
 its dependent DLLs are in the System Path (not the user path). </p>
+</div>
+</div>
+<div class="section"><a name="5"/>
+<h2>5. Using Axis2/C with CGI</h2>
+<div class="subsection"><a name="5.1"/>
+<h3>5.1 Deploying in Apache2</h3>
+If you haven't already done so you need to configure and set up an cgi-bin/ directory that holds your CGI scripts,where we will put Axis2/C cgi executable axis2.cgi.
+<br /><br />(Note: most of recent Apache web servers already have an cgi-bin dir set up, usually /usr/lib/cgi-bin/. )
+<br /><br />Add following to your Apache2 configuration (httpd.conf) file.
+<br /><br /><code>ScriptAlias /cgi-bin/ /usr/local/apache/cgi-bin/</code> (Or some other directory of your choice)
+<br /><br />OR you can use
+<br /><code>&lt;Directory /usr/local/apache/cgi-bin/&gt;
+<br />Options +ExecCGI
+<br />&lt;/Directory&gt;
+<br /><br />AddHandler cgi-script .cgi</code>
+<br /><br />{ It's recomended to restrict all your cgi scripts to single ScriptAlias directory for security reasons.}
+<br /><br />Now we have to set up configuration parameters via environment variables for the cgi deployment using the SetEnv directive.
+<br /><br />{ You need to have mod_env enabled for this to work )
+<br /><br />Add the following to your apache2 configuration file (httpd.conf)
+<br /><br /><code>SetEnv WSFC_HOME &lt;your path to axis2c home dir&gt;</code>
+<br /><br />( i.e. SetEnv WSFC_HOME /usr/local/axis2c/ )
+<br /><br />If you have chosen another alias for you cgi-bin you can also set up an 
+AXIS2C_URL_PREFIX environment variable, but it's not needed if you have chosen /cgi-bin/. 
+AXIS2C_URL_PREFIX defines your web services deployment url prefix. Lets say you have chosen URL
+/private/scripts/ for your cgi-bin URL and named your cgi exec as 'axis2.cgi',
+Then you need to set AXIS2_URL_PREFIX environment variable as follows:
+<br /><code>SetEnv AXIS2C_URL_PREFIX /private/scripts/axis2.cgi/</code>
+       
+<br /><br />Now we have configured apache such that all requests with URL  http://&lt;domain-name&gt;/cgi-bin/ requests
+are located at your configured cgi folder. We have granted Apache server to execute CGI from that directory 
+and treat files with .cgi extensions as CGI executables.
+<br /><br />Now you need to copy the Axis2/C cgi executable &quot;axis2.cgi&quot; located in &lt;WSFC_HOME&gt;\bin directory. </div>
+<div class="subsection"><a name="5.2"/>
+<h3>5.2 Deploying in IIS</h3>
+<b>IIS 5.1</b>
+<ol>
+<li>Open your 'Internet services manager'</li>
+<li>Under your computer name and 'Default Web Site' you must create an virtual
+           directory called 'cgi-bin' (if you haven't done so by now) so right click
+           'Default Web Site' -> New -> Virtual Directory.</li>
+<li>In wizard enter 'cgi-bin' as Alias.</li>
+<li>Choose a directory of your choice for cgi scripts placement. (like C:\www\cgi-bin\)</li>
+<li>In access permissions select Read and Execute.</li>
+<li>Finish the wizard so that Virtual Directory is created.</li>
+<li>Open your selected folder (i.e. C:\www\cgi-bin\) and copy axis2.cgi there.</li>
+</ol>
+    
+NOTE: 
+<br />Your Axis2 endpoints now looks like this when deployed under cgi.
+<br />http://domain-name.com/cgi-bin/axis2.cgi/&lt;services directory&gt;/&lt;service name&gt;
+<br /><br />For the echo service found under /services/ directory of Axis2, the endpoint will become
+<br />http://domain-name.com/cgi-bin/axis2.cgi/services/echo
 </div>
 </div>
 </div></div></body></html>

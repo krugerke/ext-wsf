@@ -345,11 +345,12 @@ on_new_entry_to_file(
         fprintf(file, "---------------------\n");
 
         convert = axutil_strdup(env, TCPMON_ENTRY_SENT_HEADERS(entry, env));
-        convert = str_replace(convert, "; ", ";\n\t");
+        convert = tcpmon_util_str_replace(env, convert, "; ", ";\n\t");
         fprintf(file, "%s\r\n\r\n", convert);
         if (convert)
         {
-            free(convert);
+            AXIS2_FREE(env->allocator, convert);
+            convert = NULL;
         }
         if (strcmp(formated_buffer, "") != 0)
         {
@@ -358,11 +359,12 @@ on_new_entry_to_file(
                 (int)strlen(formated_buffer) + 4)
             {
                 convert = axutil_strdup(env, formated_buffer);
-                convert = str_replace(convert, "><", ">\n<");
+                convert = tcpmon_util_str_replace(env, convert, "><", ">\n<");
                 fprintf(file, "%s", convert);
                 if (convert)
                 {
-                    free(convert);
+                    AXIS2_FREE(env->allocator, convert);
+                    convert = NULL;
                 }
             }
             else
@@ -457,11 +459,12 @@ on_new_entry_to_file(
         fprintf(file, "---------------------\n");
 
         convert = axutil_strdup(env, TCPMON_ENTRY_ARRIVED_HEADERS(entry, env));
-        convert = str_replace(convert, "; ", ";\n\t");
+        convert = tcpmon_util_str_replace(env, convert, "; ", ";\n\t");
         fprintf(file, "%s\r\n\r\n", convert);
         if (convert)
         {
-            free(convert);
+            AXIS2_FREE(env->allocator, convert);
+            convert = NULL;
         }
         if (strcmp(formated_buffer, "") != 0)
         {
@@ -470,11 +473,12 @@ on_new_entry_to_file(
                 (int)strlen(formated_buffer) + 4)
             {
                 convert = axutil_strdup(env, formated_buffer);
-                convert = str_replace(convert, "><", ">\n<");
+                convert = tcpmon_util_str_replace(env, convert, "><", ">\n<");
                 fprintf(file, "%s", convert);
                 if (convert)
                 {
-                    free(convert);
+                    AXIS2_FREE(env->allocator, convert);
+                    convert = NULL;
                 }
             }
             else
@@ -513,7 +517,7 @@ resend_request(
     FILE *file;
     axis2_char_t *uuid = NULL;
     axis2_char_t *buffer = NULL;
-    int read_len = 0;
+    size_t read_len = 0;
 
     if (status == 0)
     {
@@ -569,12 +573,12 @@ resend_request(
         axis2_char_t *tmp2 = NULL;
         axis2_char_t *tmp3 = NULL;
         axis2_char_t *uuid_match = NULL;
-        int offset = 0;
+        size_t offset = 0;
         int loop_state = 1;
         int end_reached = 0;
-        int rounds = 0;
+        size_t rounds = 0;
 
-        offset = (int)strlen(search);
+        offset = strlen(search);
         tmp3 = buffer;
         if (read_len >= SIZE)
         {
@@ -589,15 +593,15 @@ resend_request(
         }
         while (loop_state)
         {
-            int temp_len = 0;
+            size_t temp_len = 0;
             tmp1 = strstr(tmp3, search);
-            temp_len = (int)strlen(tmp3) + 1;
+            temp_len = strlen(tmp3) + 1;
             /* loop below is for mtom cases */
             while (!tmp1 && (read_len - rounds > temp_len))
             {
-                tmp3 += (int)strlen(tmp3) + 1;
+                tmp3 += strlen(tmp3) + 1;
                 tmp1 = strstr(tmp3, search);
-                temp_len += (int)strlen(tmp3) + 1;
+                temp_len += strlen(tmp3) + 1;
             }
             if (!tmp1)
             {
@@ -606,16 +610,16 @@ resend_request(
                     break;
                 }
                 memmove(buffer, buffer + (SIZE - 1 - offset), offset);
-                read_len = (int)fread(buffer + offset, sizeof(char),
+                read_len = fread(buffer + offset, sizeof(char),
                                  SIZE - 1 - offset, file) + offset;
                 break;
             }
             else
             {
-                rounds = (int)(tmp1 - tmp3) + offset + 36;
+                rounds = tmp1 - tmp3 + offset + 36;
                 tmp3 = tmp1 + offset + 36;
             }
-            if (read_len - offset - 36 < (int)(tmp1 - buffer))
+            if (read_len - offset - 36 < (size_t)(tmp1 - buffer))
             {
                 if (end_reached)
                 {
@@ -623,7 +627,7 @@ resend_request(
                 }
                 offset += 36;
                 memmove(buffer, buffer + (SIZE - 1 - offset), offset);
-                read_len = (int)fread(buffer + offset, sizeof(char),
+                read_len = fread(buffer + offset, sizeof(char),
                                  SIZE - 1 - offset, file) + offset;
                 break;
             }
@@ -642,26 +646,26 @@ resend_request(
                 axis2_char_t *header_str = "*/\n---------------------\n";
                 axis2_char_t *footer_str =
                     "\n= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =";
-                int seek_len = 0;
+                size_t seek_len = 0;
                 int has_raw_binary = 0;
                 axis2_char_t *request_buffer = NULL;
                 AXIS2_FREE(env->allocator, uuid_match);
                 AXIS2_FREE(env->allocator, uuid);
                 end_reached = 1;
                 tmp2 += 36;
-                offset = (int)strlen(header_str);
-                if (read_len - offset < (int)(tmp2 - buffer))
+                offset = strlen(header_str);
+                if (read_len - offset < (size_t)(tmp2 - buffer))
                 {
-                    seek_len = (int)(tmp2 - buffer) + offset - read_len;
+                    seek_len = tmp2 - buffer + offset - read_len;
                     if (seek_len > 0)
                     {
-                        fread(buffer, sizeof(char), seek_len, file);
+                        read_len = fread(buffer, sizeof(char), seek_len, file);
                     }
                     seek_len = 0;
                 }
                 else
                 {
-                    seek_len = read_len - (int)(tmp2 - buffer) - offset;
+                    seek_len = read_len - (size_t)(tmp2 - buffer) - offset;
                 }
                 request_buffer = AXIS2_MALLOC(env->allocator,
                                               sizeof(axis2_char_t) * (48 * 1024 + 1));
@@ -710,7 +714,7 @@ resend_request(
                         req_payload = tmp1 + 2;
                         tmp1 = axutil_strdup(env, request_buffer);
                         req_content_len -= (int)strlen(tmp1);
-                        tmp1 = str_replace(tmp1, ";\n\t", "; ");
+                        tmp1 = tcpmon_util_str_replace(env, tmp1, ";\n\t", "; ");
                         req_header = tmp1;
                         tmp2 = strstr(req_header, AXIS2_HTTP_HEADER_USER_AGENT ":");
                         if (tmp2)
@@ -730,7 +734,7 @@ resend_request(
                                 tmp2 = AXIS2_MALLOC(env->allocator,
                                                     sizeof(axis2_char_t) * (header_len + 1));
                                 sprintf(tmp2, "%s\r\n", user_agent);
-                                req_header = str_replace(req_header, tmp1, tmp2);
+                                req_header = tcpmon_util_str_replace(env, req_header, tmp1, tmp2);
                                 AXIS2_FREE(env->allocator, tmp1);
                                 AXIS2_FREE(env->allocator, tmp2);
                                 tmp1 = NULL;
@@ -756,7 +760,7 @@ resend_request(
                                     req_content_len = (int)strlen(req_payload);
                                     sprintf(tmp2, "%s%d\r\n", AXIS2_HTTP_HEADER_CONTENT_LENGTH 
                                         ": ", req_content_len);
-                                    req_header = str_replace(req_header, tmp1, tmp2);
+                                    req_header = tcpmon_util_str_replace(env, req_header, tmp1, tmp2);
                                     AXIS2_FREE(env->allocator, tmp1);
                                     AXIS2_FREE(env->allocator, tmp2);
                                     tmp1 = NULL;
@@ -781,7 +785,7 @@ resend_request(
                                                     sizeof(axis2_char_t) * (header_len + 1));
                                 sprintf(tmp2, "%s%s:%d\r\n", AXIS2_HTTP_HEADER_HOST ": ", target_host,
                                         TCPMON_SESSION_GET_LISTEN_PORT(session, env));
-                                req_header = str_replace(req_header, tmp1, tmp2);
+                                req_header = tcpmon_util_str_replace(env, req_header, tmp1, tmp2);
                                 AXIS2_FREE(env->allocator, tmp1);
                                 AXIS2_FREE(env->allocator, tmp2);
                                 tmp1 = NULL;

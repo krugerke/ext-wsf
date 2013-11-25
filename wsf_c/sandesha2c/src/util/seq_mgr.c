@@ -47,7 +47,7 @@ sandesha2_seq_mgr_get_last_activated_time(
     sandesha2_seq_property_mgr_t *seq_prop_mgr);
 
 AXIS2_EXTERN axis2_char_t *AXIS2_CALL
-sandesha2_seq_mgr_setup_new_rmd_sequence(
+sandesha2_seq_mgr_setup_new_incoming_sequence(
     const axutil_env_t *env,
     sandesha2_msg_ctx_t *create_seq_msg, 
     sandesha2_seq_property_mgr_t *seq_prop_mgr,
@@ -67,7 +67,6 @@ sandesha2_seq_mgr_setup_new_rmd_sequence(
     sandesha2_seq_property_bean_t *reply_to_bean = NULL;
     sandesha2_seq_property_bean_t *acks_to_bean = NULL;
     sandesha2_seq_property_bean_t *to_bean = NULL;
-    sandesha2_seq_property_bean_t *spec_version_bean = NULL;
     sandesha2_next_msg_bean_t *next_msg_bean = NULL;
     axis2_char_t *addressing_ns_value = NULL;
     axis2_char_t *anonymous_uri = NULL;
@@ -77,7 +76,7 @@ sandesha2_seq_mgr_setup_new_rmd_sequence(
     axis2_char_t *address = NULL;
     axis2_char_t *reply_to_addr = NULL;
 
-    AXIS2_LOG_TRACE(env->log, AXIS2_LOG_SI, "[sandesha2]Entry:sandesha2_seq_mgr_setup_new_rmd_sequence");
+    AXIS2_LOG_TRACE(env->log, AXIS2_LOG_SI, "[sandesha2]Entry:sandesha2_seq_mgr_setup_new_incoming_sequence");
 
     rmd_sequence_id = axutil_uuid_gen(env);
     to = sandesha2_msg_ctx_get_to(create_seq_msg, env);
@@ -220,17 +219,6 @@ sandesha2_seq_mgr_setup_new_rmd_sequence(
         return NULL;
     }
 
-    spec_version_bean = sandesha2_seq_property_bean_create(env);
-    if(spec_version_bean)
-    {
-        sandesha2_seq_property_bean_set_seq_id(spec_version_bean, env, rmd_sequence_id);
-        sandesha2_seq_property_bean_set_name(spec_version_bean, env, SANDESHA2_SEQ_PROP_RM_SPEC_VERSION);
-        sandesha2_seq_property_bean_set_value(spec_version_bean, env, spec_version);
-   
-        sandesha2_seq_property_mgr_insert(seq_prop_mgr,env, spec_version_bean);
-        sandesha2_seq_property_bean_free(spec_version_bean, env);
-    }
-
     if(spec_version)
     {
         AXIS2_FREE(env->allocator, spec_version);
@@ -238,7 +226,7 @@ sandesha2_seq_mgr_setup_new_rmd_sequence(
 
     /* TODO Get the SOAP version from the creaet sequence message */
 
-    AXIS2_LOG_TRACE(env->log, AXIS2_LOG_SI, "[sandesha2]Entry:sandesha2_seq_mgr_setup_new_rmd_sequence");
+    AXIS2_LOG_TRACE(env->log, AXIS2_LOG_SI, "[sandesha2]Entry:sandesha2_seq_mgr_setup_new_incoming_sequence");
 
     return rmd_sequence_id;
 }
@@ -294,7 +282,7 @@ sandesha2_seq_mgr_has_seq_timedout(
     const axutil_env_t *env,
     axis2_char_t *property_key,
     sandesha2_seq_property_mgr_t *seq_prop_mgr,
-    axis2_conf_ctx_t *conf_ctx)
+    axis2_svc_t *svc)
 {
     sandesha2_property_bean_t *property_bean = NULL;
     axis2_bool_t seq_timedout = AXIS2_FALSE;
@@ -307,7 +295,7 @@ sandesha2_seq_mgr_has_seq_timedout(
     AXIS2_PARAM_CHECK(env->error, property_key, AXIS2_FALSE);
     AXIS2_PARAM_CHECK(env->error, seq_prop_mgr, AXIS2_FALSE);
     
-    property_bean = sandesha2_utils_get_property_bean(env, axis2_conf_ctx_get_conf(conf_ctx, env));
+    property_bean = sandesha2_utils_get_property_bean(env, svc);
     timeout_interval = sandesha2_property_bean_get_inactive_timeout_interval(property_bean, env);
     if(timeout_interval <= 0)
     {
@@ -358,7 +346,7 @@ sandesha2_seq_mgr_get_last_activated_time(
 }
 
 AXIS2_EXTERN axis2_status_t AXIS2_CALL
-sandesha2_seq_mgr_setup_new_rms_sequence(
+sandesha2_seq_mgr_setup_new_outgoing_sequence(
     const axutil_env_t *env,
     axis2_msg_ctx_t *first_app_msg,
     axis2_char_t *internal_sequence_id,
@@ -377,11 +365,10 @@ sandesha2_seq_mgr_setup_new_rms_sequence(
     sandesha2_seq_property_bean_t *acks_to_bean = NULL;
     sandesha2_seq_property_bean_t *msgs_bean = NULL;
     axis2_char_t *transport_to = NULL;
-    sandesha2_seq_property_bean_t *spec_version_bean = NULL;
     axis2_endpoint_ref_t *reply_to_epr = NULL;
     axis2_bool_t is_svr_side = AXIS2_FALSE;
    
-    AXIS2_LOG_TRACE(env->log, AXIS2_LOG_SI, "Entry:sandesha2_seq_mgr_setup_new_rms_sequence");
+    AXIS2_LOG_TRACE(env->log, AXIS2_LOG_SI, "Entry:sandesha2_seq_mgr_setup_new_outgoing_sequence");
 
     AXIS2_PARAM_CHECK(env->error, first_app_msg, AXIS2_FAILURE);
     AXIS2_PARAM_CHECK(env->error, internal_sequence_id, AXIS2_FAILURE);
@@ -538,17 +525,9 @@ sandesha2_seq_mgr_setup_new_rms_sequence(
         sandesha2_seq_property_mgr_insert(seq_prop_mgr, env, transport_to_bean);
     }
 
-    spec_version_bean = sandesha2_seq_property_bean_create_with_data(env, internal_sequence_id, 
-            SANDESHA2_SEQ_PROP_RM_SPEC_VERSION, spec_version);
-    if(spec_version_bean)
-    {
-        sandesha2_seq_property_mgr_insert(seq_prop_mgr, env, spec_version_bean);
-        sandesha2_seq_property_bean_free(spec_version_bean, env);
-    }
-
     sandesha2_seq_mgr_update_last_activated_time(env, internal_sequence_id, seq_prop_mgr);
 
-    AXIS2_LOG_TRACE(env->log, AXIS2_LOG_SI, "Exit:sandesha2_seq_mgr_setup_new_rms_sequence");
+    AXIS2_LOG_TRACE(env->log, AXIS2_LOG_SI, "Exit:sandesha2_seq_mgr_setup_new_outgoing_sequence");
 
     return AXIS2_SUCCESS;
 }

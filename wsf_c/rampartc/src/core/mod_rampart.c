@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include <axis2_module.h>
 #include <rampart_mod.h>
 #include <rampart_constants.h>
@@ -39,8 +40,7 @@ rampart_mod_fill_handler_create_func_map(
 static const axis2_module_ops_t addr_module_ops_var = {
     rampart_mod_init,
     rampart_mod_shutdown,
-    rampart_mod_fill_handler_create_func_map
-    };
+    rampart_mod_fill_handler_create_func_map };
 
 axis2_module_t *
 rampart_mod_create(
@@ -48,11 +48,11 @@ rampart_mod_create(
 {
     axis2_module_t *module = NULL;
     module = AXIS2_MALLOC(env->allocator, sizeof(axis2_module_t));
-    if (!module)
+    if(!module)
     {
         AXIS2_ERROR_SET(env->error, AXIS2_ERROR_NO_MEMORY, AXIS2_FAILURE);
-        AXIS2_LOG_ERROR(env->log, AXIS2_LOG_SI, 
-            "[rampart][rampart_mod] Not enough memory. Cannot create module.");
+        AXIS2_LOG_ERROR(env->log, AXIS2_LOG_SI,
+            "[rampart]Not enough memory. Cannot create module.");
         return NULL;
     }
 
@@ -69,12 +69,11 @@ rampart_mod_init(
 {
     /* 
      * Any initialization stuff of Rampart module goes here. At the moment we have NONE. 
-     * Intialization happens in handlers depending on the message flow and policies
+     * Initialization happens in handlers depending on the message flow and policies
      */
     rampart_error_init();
-    
-    AXIS2_LOG_INFO(env->log, 
-        "[rampart][rampart_mod] rampart_mod initialized");
+
+    AXIS2_LOG_INFO(env->log, "[rampart] rampart_mod initialized");
     return AXIS2_SUCCESS;
 }
 
@@ -83,12 +82,11 @@ rampart_mod_shutdown(
     axis2_module_t *module,
     const axutil_env_t *env)
 {
-    AXIS2_LOG_INFO(env->log,
-        "[rampart][rampart_mod] rampart_mod shutdown");
+    AXIS2_LOG_INFO(env->log, "[rampart] rampart_mod shutdown");
 
-    if (module)
+    if(module)
     {
-        if (module->handler_create_func_map)
+        if(module->handler_create_func_map)
         {
             axutil_hash_free(module->handler_create_func_map, env);
             module->handler_create_func_map = NULL;
@@ -105,11 +103,10 @@ rampart_mod_fill_handler_create_func_map(
     const axutil_env_t *env)
 {
     module->handler_create_func_map = axutil_hash_make(env);
-    if (!module->handler_create_func_map)
+    if(!module->handler_create_func_map)
     {
         AXIS2_ERROR_SET(env->error, AXIS2_ERROR_NO_MEMORY, AXIS2_FAILURE);
-        AXIS2_LOG_ERROR(env->log, AXIS2_LOG_SI, 
-            "[rampart][rampart_mod] Cannot create function map.");
+        AXIS2_LOG_ERROR(env->log, AXIS2_LOG_SI, "[rampart]Cannot create function map.");
         return AXIS2_FAILURE;
     }
 
@@ -118,11 +115,11 @@ rampart_mod_fill_handler_create_func_map(
      * 1. Rampart In Handler to process message
      * 2. Rampart Out Handler to build the message
      */
-    axutil_hash_set(module->handler_create_func_map, RAMPART_IN_HANDLER, 
-            AXIS2_HASH_KEY_STRING, rampart_in_handler_create);
+    axutil_hash_set(module->handler_create_func_map, RAMPART_IN_HANDLER, AXIS2_HASH_KEY_STRING,
+        rampart_in_handler_create);
 
-    axutil_hash_set(module->handler_create_func_map, RAMPART_OUT_HANDLER,
-            AXIS2_HASH_KEY_STRING, rampart_out_handler_create);
+    axutil_hash_set(module->handler_create_func_map, RAMPART_OUT_HANDLER, AXIS2_HASH_KEY_STRING,
+        rampart_out_handler_create);
 
     return AXIS2_SUCCESS;
 }
@@ -136,7 +133,7 @@ axis2_get_instance(
     const axutil_env_t *env)
 {
     *inst = rampart_mod_create(env);
-    if (!(*inst))
+    if(!(*inst))
     {
         AXIS2_LOG_ERROR(env->log, AXIS2_LOG_SI,
             "[rampart][rampart_mod] Rampart module creation failed");
@@ -152,7 +149,7 @@ axis2_remove_instance(
     const axutil_env_t *env)
 {
     axis2_status_t status = AXIS2_FAILURE;
-    if (inst)
+    if(inst)
     {
         status = rampart_mod_shutdown(inst, env);
     }
